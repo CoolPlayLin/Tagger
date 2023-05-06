@@ -1,7 +1,11 @@
 import { template } from "./typing";
 import { Octokit } from "@octokit/rest";
 
-export function tag(labelConditions: template[] | any, title: string, default_tag: string): Array<string> {
+export function tag(
+  labelConditions: template[] | any,
+  title: string,
+  default_tag: string
+): Array<string> {
   let labelsToAdd: Array<string> = [];
   // Add tags based on conditions
   for (const { tag, keywords } of labelConditions) {
