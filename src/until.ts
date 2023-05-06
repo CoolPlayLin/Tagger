@@ -39,7 +39,7 @@ export async function output_tags(
     repo: repo,
   });
 
-  const all_tags: Array<string> = obj.data.map(function (obj: { name: any; }) {
+  const all_tags: Array<string> = obj.data.map(function (obj: { name: any }) {
     return obj.name;
   });
 
