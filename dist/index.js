@@ -11847,6 +11847,124 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
+/***/ 399:
+/***/ ((module, __webpack_exports__, __nccwpck_require__) => {
+
+"use strict";
+__nccwpck_require__.a(module, async (__webpack_handle_async_dependencies__, __webpack_async_result__) => { try {
+__nccwpck_require__.r(__webpack_exports__);
+/* harmony import */ var _tagger__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(8517);
+
+await (0,_tagger__WEBPACK_IMPORTED_MODULE_0__/* .main */ .D)();
+
+__webpack_async_result__();
+} catch(e) { __webpack_async_result__(e); } }, 1);
+
+/***/ }),
+
+/***/ 8517:
+/***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
+
+"use strict";
+
+// EXPORTS
+__nccwpck_require__.d(__webpack_exports__, {
+  "D": () => (/* binding */ main)
+});
+
+// EXTERNAL MODULE: ./node_modules/@actions/github/lib/github.js
+var lib_github = __nccwpck_require__(5438);
+// EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
+var core = __nccwpck_require__(2186);
+// EXTERNAL MODULE: ./node_modules/@octokit/rest/dist-node/index.js
+var dist_node = __nccwpck_require__(5375);
+// EXTERNAL MODULE: external "fs"
+var external_fs_ = __nccwpck_require__(7147);
+;// CONCATENATED MODULE: ./src/until.ts
+
+function tag(labelConditions, title, default_tag) {
+    let labelsToAdd = [];
+    // Add tags based on conditions
+    for (const { tag, keywords } of labelConditions) {
+        for (const keyword of keywords) {
+            if (title.includes(keyword)) {
+                labelsToAdd.push(tag);
+                break;
+            }
+        }
+    }
+    if (labelsToAdd.length == 0) {
+        labelsToAdd.push(default_tag);
+    }
+    return labelsToAdd;
+}
+async function output_tags(token, repo, owner) {
+    var gh = new dist_node/* Octokit */.v({
+        auth: token,
+    });
+    var res = [];
+    const obj = await gh.issues.listLabelsForRepo({
+        owner: owner,
+        repo: repo,
+    });
+    const all_tags = obj.data.map(function (obj) {
+        return obj.name;
+    });
+    for (const name of all_tags) {
+        res.push({
+            tag: name,
+            keywords: [name],
+        });
+    }
+    return res;
+}
+
+;// CONCATENATED MODULE: ./src/tagger.ts
+
+
+
+
+
+async function main() {
+    // Get base information
+    var inputs = {
+        token: core.getInput("repo-token"),
+        path: core.getInput("path"),
+        default_tag: core.getInput("default-tag"),
+        debug: core.getBooleanInput("debug"),
+    };
+    var github = new dist_node/* Octokit */.v({
+        auth: inputs.token,
+    });
+    if (inputs.path.length == 0) {
+        var template = await output_tags(inputs.token, lib_github.context.repo.repo, lib_github.context.repo.owner);
+    }
+    else {
+        var template = JSON.parse(String(external_fs_.readFileSync(inputs.path)));
+    }
+    if (lib_github.context.payload.issue?.number != undefined) {
+        var tags = tag(template, lib_github.context.payload.issue.title, inputs.default_tag);
+        var number = lib_github.context.payload.issue.number;
+    }
+    else if (lib_github.context.payload.pull_request?.title != undefined) {
+        var tags = tag(template, lib_github.context.payload.pull_request.title, inputs.default_tag);
+        var number = lib_github.context.payload.pull_request.number;
+    }
+    else {
+        const error = Error("No information about pull requests and issues is currently available");
+        throw error;
+    }
+    github.issues.addLabels({
+        repo: lib_github.context.repo.repo,
+        owner: lib_github.context.repo.owner,
+        issue_number: number,
+        labels: tags,
+    });
+}
+
+
+/***/ }),
+
 /***/ 2877:
 /***/ ((module) => {
 
@@ -12016,6 +12134,92 @@ module.exports = JSON.parse('[[[0,44],"disallowed_STD3_valid"],[[45,46],"valid"]
 /******/ 	}
 /******/ 	
 /************************************************************************/
+/******/ 	/* webpack/runtime/async module */
+/******/ 	(() => {
+/******/ 		var webpackQueues = typeof Symbol === "function" ? Symbol("webpack queues") : "__webpack_queues__";
+/******/ 		var webpackExports = typeof Symbol === "function" ? Symbol("webpack exports") : "__webpack_exports__";
+/******/ 		var webpackError = typeof Symbol === "function" ? Symbol("webpack error") : "__webpack_error__";
+/******/ 		var resolveQueue = (queue) => {
+/******/ 			if(queue && !queue.d) {
+/******/ 				queue.d = 1;
+/******/ 				queue.forEach((fn) => (fn.r--));
+/******/ 				queue.forEach((fn) => (fn.r-- ? fn.r++ : fn()));
+/******/ 			}
+/******/ 		}
+/******/ 		var wrapDeps = (deps) => (deps.map((dep) => {
+/******/ 			if(dep !== null && typeof dep === "object") {
+/******/ 				if(dep[webpackQueues]) return dep;
+/******/ 				if(dep.then) {
+/******/ 					var queue = [];
+/******/ 					queue.d = 0;
+/******/ 					dep.then((r) => {
+/******/ 						obj[webpackExports] = r;
+/******/ 						resolveQueue(queue);
+/******/ 					}, (e) => {
+/******/ 						obj[webpackError] = e;
+/******/ 						resolveQueue(queue);
+/******/ 					});
+/******/ 					var obj = {};
+/******/ 					obj[webpackQueues] = (fn) => (fn(queue));
+/******/ 					return obj;
+/******/ 				}
+/******/ 			}
+/******/ 			var ret = {};
+/******/ 			ret[webpackQueues] = x => {};
+/******/ 			ret[webpackExports] = dep;
+/******/ 			return ret;
+/******/ 		}));
+/******/ 		__nccwpck_require__.a = (module, body, hasAwait) => {
+/******/ 			var queue;
+/******/ 			hasAwait && ((queue = []).d = 1);
+/******/ 			var depQueues = new Set();
+/******/ 			var exports = module.exports;
+/******/ 			var currentDeps;
+/******/ 			var outerResolve;
+/******/ 			var reject;
+/******/ 			var promise = new Promise((resolve, rej) => {
+/******/ 				reject = rej;
+/******/ 				outerResolve = resolve;
+/******/ 			});
+/******/ 			promise[webpackExports] = exports;
+/******/ 			promise[webpackQueues] = (fn) => (queue && fn(queue), depQueues.forEach(fn), promise["catch"](x => {}));
+/******/ 			module.exports = promise;
+/******/ 			body((deps) => {
+/******/ 				currentDeps = wrapDeps(deps);
+/******/ 				var fn;
+/******/ 				var getResult = () => (currentDeps.map((d) => {
+/******/ 					if(d[webpackError]) throw d[webpackError];
+/******/ 					return d[webpackExports];
+/******/ 				}))
+/******/ 				var promise = new Promise((resolve) => {
+/******/ 					fn = () => (resolve(getResult));
+/******/ 					fn.r = 0;
+/******/ 					var fnQueue = (q) => (q !== queue && !depQueues.has(q) && (depQueues.add(q), q && !q.d && (fn.r++, q.push(fn))));
+/******/ 					currentDeps.map((dep) => (dep[webpackQueues](fnQueue)));
+/******/ 				});
+/******/ 				return fn.r ? promise : getResult();
+/******/ 			}, (err) => ((err ? reject(promise[webpackError] = err) : outerResolve(exports)), resolveQueue(queue)));
+/******/ 			queue && (queue.d = 0);
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__nccwpck_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__nccwpck_require__.o(definition, key) && !__nccwpck_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__nccwpck_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
 /******/ 	/* webpack/runtime/make namespace object */
 /******/ 	(() => {
 /******/ 		// define __esModule on exports
@@ -12032,144 +12236,12 @@ module.exports = JSON.parse('[[[0,44],"disallowed_STD3_valid"],[[45,46],"valid"]
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
 /******/ 	
 /************************************************************************/
-var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be in strict mode.
-(() => {
-"use strict";
-// ESM COMPAT FLAG
-__nccwpck_require__.r(__webpack_exports__);
-
-// EXTERNAL MODULE: ./node_modules/@actions/github/lib/github.js
-var github = __nccwpck_require__(5438);
-// EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
-var core = __nccwpck_require__(2186);
-// EXTERNAL MODULE: ./node_modules/@octokit/rest/dist-node/index.js
-var dist_node = __nccwpck_require__(5375);
-;// CONCATENATED MODULE: ./src/tagger.ts
-
-
-
-var run = ["issue", "pull_request"];
-var tagger_github = new dist_node/* Octokit */.v({
-    auth: core.getInput("repo-token"),
-});
-function get_inputs() {
-    let data = {
-        type: core.getInput("type"),
-        path: core.getInput("path"),
-        default_tag: core.getInput("indeterminate-tag"),
-    };
-    return data;
-}
-function tags(title, templates) {
-    const tagsToAdd = [];
-    // Add tags based on conditions
-    for (const { tag, keywords } of templates.tags) {
-        for (const keyword of keywords) {
-            if (title.includes(keyword)) {
-                tagsToAdd.push(tag);
-                break;
-            }
-        }
-    }
-    if (tagsToAdd.length == 0) {
-        tagsToAdd.push("triage-needed");
-    }
-    return tagsToAdd;
-}
-async function get_template(type, path, default_tag) {
-    // Get tag data
-    if (Boolean(path)) {
-        fetch(path)
-            .then((Response) => Response.json())
-            .then((tag_data) => {
-            return {
-                tags: tag_data,
-                type: type,
-                default_tag: default_tag,
-            };
-        });
-    }
-    else {
-        await tagger_github.rest.issues
-            .listLabelsForRepo({
-            owner: github.context.repo.owner,
-            repo: github.context.repo.repo,
-        })
-            .then((data) => {
-            let tags = data.data.map(function (obj) {
-                return obj.name;
-            });
-            let tag_data = [];
-            for (let tag of tags) {
-                tag_data.push({
-                    tag: tag,
-                    keywords: [tag],
-                });
-            }
-            return {
-                tags: tag_data,
-                type: type,
-                default_tag: default_tag,
-            };
-        });
-    }
-    return {
-        tags: [],
-        type: "",
-        default_tag: "",
-    };
-}
-function main() {
-    let data = get_inputs();
-    get_template(data.type, data.path, data.default_tag).then((obj) => {
-        switch (obj.type) {
-            case run[0]:
-                const { issue } = github.context.payload;
-                if (typeof issue?.number == "number") {
-                    tagger_github.rest.issues.addLabels({
-                        owner: github.context.repo.owner,
-                        repo: github.context.repo.repo,
-                        issue_number: issue.number,
-                        labels: tags(issue.title, obj),
-                    });
-                }
-                else {
-                    let error = TypeError("context.payload.issue?.number is undefined");
-                    throw error;
-                }
-                break;
-            case run[1]:
-                const { pull_request } = github.context.payload;
-                if (typeof pull_request?.number == "number") {
-                    tagger_github.rest.issues.addLabels({
-                        owner: github.context.repo.owner,
-                        repo: github.context.repo.repo,
-                        issue_number: pull_request?.number,
-                        labels: tags(pull_request.title, obj),
-                    });
-                }
-                else {
-                    let error = TypeError("context.payload.pull_request?.number is undefined");
-                    throw error;
-                }
-                break;
-        }
-    });
-}
-
-;// CONCATENATED MODULE: ./src/main.ts
-
-
-try {
-    main();
-}
-catch (error) {
-    (0,core.setFailed)(error);
-}
-
-})();
-
-module.exports = __webpack_exports__;
+/******/ 	
+/******/ 	// startup
+/******/ 	// Load entry module and return exports
+/******/ 	// This entry module used 'module' so it can't be inlined
+/******/ 	var __webpack_exports__ = __nccwpck_require__(399);
+/******/ 	module.exports = __webpack_exports__;
+/******/ 	
 /******/ })()
 ;
