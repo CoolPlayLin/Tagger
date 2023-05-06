@@ -1,10 +1,8 @@
 name: Formater
 
 on:
-  workflow_run:
-    workflows: [CI]
-    types:
-      - completed
+  push:
+    branches: [master]
   schedule:
     - cron: '0 0 * * *'
   workflow_dispatch:
@@ -23,7 +21,7 @@ jobs:
       run: |
        git config --global user.email ${{ vars.COOLPLAYLIN_BOT_EMAIL }}
        git config --global user.name ${{ vars.COOLPLAYLIN_BOT_NAME }}
-    - name: Delete Old Dist Folder
+    - name: Delete old dist folder
       if: github.event_name != 'push'
       run: |
        if [ -d "dist" ]; then
@@ -35,7 +33,7 @@ jobs:
         node-version: '16'
     - name: Install dependencies
       run: npm install
-    - name: Build
+    - name: Build dist file
       if: github.event_name != 'push'
       run: |
        npm run build
@@ -50,5 +48,5 @@ jobs:
        if [[ -n $(git status -s) ]]; then
        git commit -m "[Automated] Format All of the file"
        fi
-    - name: Push
+    - name: Push to master branch
       run: git push origin master --force
