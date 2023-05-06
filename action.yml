@@ -9,9 +9,6 @@ inputs:
     description: 'The GitHub token used to manage labels'
     required: false
     default: ${{ github.token }}
-  type:
-    description: 'Determine whether to tag pull_request or issue'
-    required: true
   path:
     description: 'The path to the configuration file'
     required: false
