@@ -1,8 +1,7 @@
-name: Auto Push
+name: Formater
 
 on:
-  push:
-    branches: [master]
+  workflow_call:
   schedule:
     - cron: '0 0 * * *'
   workflow_dispatch:
@@ -10,7 +9,7 @@ on:
 jobs:
  build:
   runs-on: ubuntu-latest
-  if: github.event.pusher.name != 'coolplaylinbot'
+  if: github.event.pusher.name != vars.COOLPLAYLIN_BOT_NAME
   steps:
     - name: Checkout
       uses: actions/checkout@master
@@ -18,9 +17,9 @@ jobs:
         token: ${{ secrets.COOLPLAYLIN_BOT_TOKEN }}
     - name: Set up Information
       run: |
-       git config --global user.email "130831920+coolplaylinbot@users.noreply.github.com"
-       git config --global user.name "coolplaylinbot"
-    - name: Delete
+       git config --global user.email ${{ vars.COOLPLAYLIN_BOT_EMAIL }}
+       git config --global user.name ${{ vars.COOLPLAYLIN_BOT_NAME }}
+    - name: Delete Old Dist Folder
       if: github.event_name != 'push'
       run: |
        if [ -d "dist" ]; then
@@ -34,18 +33,18 @@ jobs:
       run: npm install
     - name: Build
       if: github.event_name != 'push'
-      run: npm run build
-    - name: Format
-      run: npm run format:w
-    - name: Push
       run: |
-       if [ -d "dist" ]; then
-       git add dist -f
+       npm run build
+       git add dist --force
+       if [[ -n $(git status -s) ]]; then
+       git commit -m "[Automated] Update dist file"
        fi
+    - name: Format
+      run: |
+       npm run format:w
        git add .
        if [[ -n $(git status -s) ]]; then
-       git commit -m 'Auto Push'
-       git push origin master --force
-       else
-       echo "No changes detected, skipping push"
+       git commit -m "[Automated] Format All of the file"
        fi
+    - name: Push
+      run: git push origin master --force

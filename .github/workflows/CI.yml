@@ -5,7 +5,7 @@ on: [push]
 jobs:
  build:
   runs-on: ubuntu-latest
-  if: github.event.pusher.name != 'coolplaylinbot'
+  if: github.event.pusher.name != vars.COOLPLAYLIN_BOT_NAME
   steps:
    - name: Checkout
      uses: actions/checkout@master
@@ -17,3 +17,5 @@ jobs:
      run: npm install
    - name: Build
      run: npm run build
+   - name: Pull up the workflow
+     uses: ./.github/workflows/formater.yml@master
