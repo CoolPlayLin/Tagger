@@ -1,13 +1,17 @@
 name: Formater
 
 on:
-  workflow_call:
+  workflow_run:
+    workflows: [CI]
+    types:
+      - completed
   schedule:
     - cron: '0 0 * * *'
   workflow_dispatch:
 
 jobs:
  build:
+  
   runs-on: ubuntu-latest
   if: github.event.pusher.name != vars.COOLPLAYLIN_BOT_NAME
   steps:
