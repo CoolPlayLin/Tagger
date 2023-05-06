@@ -3,125 +3,41 @@ import * as core from "@actions/core";
 import { Octokit } from "@octokit/rest";
 import * as t from "./typing";
 import * as fs from "fs";
+import * as until from "./until"
 
-var run = ["issue", "pull_request"];
-
-var github = new Octokit({
-  auth: core.getInput("repo-token"),
-});
-
-function get_inputs() {
-  let data: t.inputs = {
-    type: core.getInput("type"),
-    path: core.getInput("path"),
-    default_tag: core.getInput("indeterminate-tag"),
-  };
-
-  return data;
-}
-
-function tags(title: string, templates: t.templates): Array<string> {
-  const tagsToAdd: Array<string> = [];
-  // Add tags based on conditions
-  for (const { tag, keywords } of templates.tags) {
-    for (const keyword of keywords) {
-      if (title.includes(keyword)) {
-        tagsToAdd.push(tag);
-        break;
-      }
-    }
+export async function main():Promise<void> {
+  // Get base information
+  var inputs: t.inputs = {
+    token: core.getInput('repo-token'),
+    path: core.getInput('path'),
+    default_tag: core.getInput('default-tag'),
+    debug: core.getBooleanInput('debug')
   }
+  var github = new Octokit({
+    auth: inputs.token
+  })
 
-  if (tagsToAdd.length == 0) {
-    tagsToAdd.push("triage-needed");
-  }
-  return tagsToAdd;
-}
-
-async function get_template(
-  type: string,
-  path: string,
-  default_tag: string
-): Promise<t.templates> {
-  // Get tag data
-  if (Boolean(path)) {
-    fetch(path)
-      .then((Response) => Response.json())
-      .then((tag_data) => {
-        return {
-          tags: tag_data,
-          type: type,
-          default_tag: default_tag,
-        };
-      });
+  if (inputs.path.length == 0){
+    var template: any = await until.output_tags(inputs.token, context.repo.repo, context.repo.owner)
   } else {
-    await github.rest.issues
-      .listLabelsForRepo({
-        owner: context.repo.owner,
-        repo: context.repo.repo,
-      })
-      .then((data) => {
-        let tags = data.data.map(function (obj) {
-          return obj.name;
-        });
-
-        let tag_data: t.tags[] = [];
-        for (let tag of tags) {
-          tag_data.push({
-            tag: tag,
-            keywords: [tag],
-          });
-        }
-
-        return {
-          tags: tag_data,
-          type: type,
-          default_tag: default_tag,
-        };
-      });
+    var template: any = JSON.parse(String(fs.readFileSync(inputs.path)))
   }
 
-  return {
-    tags: [],
-    type: "",
-    default_tag: "",
-  };
-}
+  if (context.payload.issue?.number != undefined) {
+    var tags = until.tag(template, context.payload.issue.title, inputs.default_tag)
+    var number = context.payload.issue.number
+  } else if (context.payload.pull_request?.title != undefined) {
+    var tags = until.tag(template, context.payload.pull_request.title, inputs.default_tag)
+    var number = context.payload.pull_request.number
+  } else {
+    const error = Error("No information about pull requests and issues is currently available")
+    throw error
+  }
 
-export function main() {
-  let data = get_inputs();
-  get_template(data.type, data.path, data.default_tag).then((obj) => {
-    switch (obj.type) {
-      case run[0]:
-        const { issue } = context.payload;
-        if (typeof issue?.number == "number") {
-          github.rest.issues.addLabels({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            issue_number: issue.number,
-            labels: tags(issue.title, obj),
-          });
-        } else {
-          let error = TypeError("context.payload.issue?.number is undefined");
-          throw error;
-        }
-        break;
-      case run[1]:
-        const { pull_request } = context.payload;
-        if (typeof pull_request?.number == "number") {
-          github.rest.issues.addLabels({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            issue_number: pull_request?.number,
-            labels: tags(pull_request.title, obj),
-          });
-        } else {
-          let error = TypeError(
-            "context.payload.pull_request?.number is undefined"
-          );
-          throw error;
-        }
-        break;
-    }
-  });
+  github.issues.addLabels({
+    repo: context.repo.repo,
+    owner: context.repo.owner,
+    issue_number: number,
+    labels: tags
+  })
 }

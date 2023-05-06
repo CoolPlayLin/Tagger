@@ -36,9 +36,8 @@ permissions:
 
 ## Inputs
 
-| Arguments         | Description                                    | Default                | Require | Limit                     |
-| ----------------- | ---------------------------------------------- | ---------------------- | ------- | ------------------------- |
-| repo-token        | The GitHub token used to manage labels         | ` github.token` | No      |                           |
-| type              | Determine whether to tag pull_request or issue |                        | Yes     | `pull_request` or `issue` |
-| path              | The path to the configuration file             |                        | No      |                           |
-| indeterminate-tag | The label used when all labels do not match    | `triage-needed`        | No      |                           |
+| Arguments         | Description                                    | Default                | Require |
+| ----------------- | ---------------------------------------------- | ---------------------- | ------- |
+| repo-token        | The GitHub token used to manage labels         | `github.token` | No      | 
+| path              | The path to the configuration file             |                        | No      |
+| default-tag | The label used when all labels do not match    | `triage-needed` | No      |

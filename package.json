@@ -4,10 +4,11 @@
   "description": "A practical issue tagging program",
   "main": "dist/index.js",
   "scripts": {
-    "test": "jest",
+    "test": "node __test__/dist/index.js",
     "build": "ncc build src/main.ts",
-    "format:w": "prettier --write src",
-    "format:r": "prettier --check src"
+    "build:test": "ncc build __test__/main.test.ts -o __test__/dist/",
+    "format:w": "prettier --write src __test__",
+    "format:r": "prettier --check src __test__"
   },
   "repository": {
     "type": "git",

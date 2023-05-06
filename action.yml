@@ -16,7 +16,7 @@ inputs:
     description: 'The path to the configuration file'
     required: false
     default: ""
-  indeterminate-tag:
+  default-tag:
     description: 'The label used when all labels do not match'
     required: false
     default: 'triage-needed'
