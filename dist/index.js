@@ -15786,7 +15786,7 @@ async function get_template(path) {
         var template = Object(JSON.parse(String(await external_fs_.readFileSync(path))));
     }
     else {
-        var template = Object(loadAll(String(external_fs_.readFileSync(path))));
+        var template = Object(load(String(external_fs_.readFileSync(path))));
     }
     return template;
 }
