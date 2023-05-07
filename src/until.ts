@@ -1,5 +1,9 @@
+import { error } from "console";
 import { template } from "./typing";
 import { Octokit } from "@octokit/rest";
+import * as fs from "fs";
+import * as yaml from "js-yaml"
+import { extname } from 'path'
 
 export function tag(
   labelConditions: template[] | any,
@@ -51,4 +55,20 @@ export async function output_tags(
   }
 
   return res;
+}
+
+export async function get_template(path: string): Promise<template[]> { 
+  const support = [".json", ".yaml", ".yml"]
+  if (!support.includes(extname(path).toLowerCase())){
+    let error = Error(`Not support file type: ${extname(path).toLowerCase()}`)
+    throw error
+  }
+
+  if (extname(path).toLowerCase() == ".json") {
+    var template = Object(JSON.parse(String(await fs.readFileSync(path))))
+  } else {
+    var template = Object(yaml.loadAll(String(fs.readFileSync(path))))
+  }
+
+  return template
 }

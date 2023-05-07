@@ -2,7 +2,6 @@ import { context } from "@actions/github";
 import * as core from "@actions/core";
 import { Octokit } from "@octokit/rest";
 import * as t from "./typing";
-import * as fs from "fs";
 import * as until from "./until";
 
 export async function main(): Promise<void> {
@@ -18,13 +17,13 @@ export async function main(): Promise<void> {
   });
 
   if (inputs.path.length == 0) {
-    var template: any = await until.output_tags(
+    var template = await until.output_tags(
       inputs.token,
       context.repo.repo,
       context.repo.owner
     );
   } else {
-    var template: any = JSON.parse(String(fs.readFileSync(inputs.path)));
+    var template = await until.get_template(inputs.path)
   }
 
   if (context.payload.issue?.number != undefined) {

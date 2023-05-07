@@ -1,0 +1,14 @@
+[
+    {
+      "tag": "bug",
+      "keywords": ["bug"]
+    },
+    {
+      "tag": "enhancement",
+      "keywords": ["documentation"]
+    },
+    {
+      "tag": "help wanted",
+      "keywords": ["help wanted"]
+    }
+  ]
