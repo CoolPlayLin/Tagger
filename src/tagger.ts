@@ -23,7 +23,7 @@ export async function main(): Promise<void> {
       context.repo.owner
     );
   } else {
-    var template = await until.get_template(inputs.path)
+    var template = await until.get_template(inputs.path);
   }
 
   if (context.payload.issue?.number != undefined) {
