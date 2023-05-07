@@ -67,7 +67,7 @@ export async function get_template(path: string): Promise<template[]> {
   if (extname(path).toLowerCase() == ".json") {
     var template = Object(JSON.parse(String(await fs.readFileSync(path))));
   } else {
-    var template = Object(yaml.loadAll(String(fs.readFileSync(path))));
+    var template = Object(yaml.load(String(fs.readFileSync(path))));
   }
 
   return template;
