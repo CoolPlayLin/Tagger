@@ -9,7 +9,7 @@ export function logger(
   output_only: boolean,
   value: any
 ): boolean {
-  value = String(value)
+  value = String(value);
   if (output_only) {
     switch (type) {
       case "error":

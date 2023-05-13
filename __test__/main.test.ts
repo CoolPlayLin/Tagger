@@ -2,10 +2,10 @@ import { output_tags, get_template, logger } from "../src/until";
 import { resolve, join } from "path";
 
 var CorrectTemplate = [
-  { tag: 'bug', keywords: [ 'bug' ] },
-  { tag: 'enhancement', keywords: [ 'documentation' ] },
-  { tag: 'help wanted', keywords: [ 'help wanted' ] }
-]
+  { tag: "bug", keywords: ["bug"] },
+  { tag: "enhancement", keywords: ["documentation"] },
+  { tag: "help wanted", keywords: ["help wanted"] },
+];
 
 async function main(): Promise<void> {
   logger("event", true, "Output tag testing.....");
