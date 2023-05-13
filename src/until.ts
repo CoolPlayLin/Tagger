@@ -1,8 +1,41 @@
-import { template } from "./types";
+import { inputs, template } from "./types";
 import { Octokit } from "@octokit/rest";
 import * as fs from "fs";
 import * as yaml from "js-yaml";
 import { extname } from "path";
+
+export function logger(
+  type: "error" | "event" | "warning",
+  output_only: boolean,
+  value: any
+): boolean {
+  value = String(value)
+  if (output_only) {
+    switch (type) {
+      case "error":
+        console.log(`Error: ${value}`);
+        return true;
+      case "event":
+        console.log(`Event: ${value}`);
+        return true;
+      case "warning":
+        console.log(`Warning: ${value}`);
+        return true;
+    }
+  } else {
+    switch (type) {
+      case "error":
+        console.error(`Error: ${value}`);
+        return true;
+      case "event":
+        console.log(`Event: ${value}`);
+        return true;
+      case "warning":
+        console.warn(`Warning: ${value}`);
+        return true;
+    }
+  }
+}
 
 export function tag(
   labelConditions: template[],
@@ -58,17 +91,44 @@ export async function output_tags(
   return res;
 }
 
-export async function get_template(path: string): Promise<template[]> {
-  const support = [".json", ".yaml", ".yml"];
-  if (!support.includes(extname(path).toLowerCase())) {
-    let error = Error(`Not support file type: ${extname(path).toLowerCase()}`);
-    throw error;
+export async function verify_template(
+  template: template[],
+  inputs: inputs,
+  options: {
+    repo: string;
+    owner: string;
+  }
+) {
+  if (template.length) {
+    template = await output_tags(inputs.token, options.repo, options.owner);
   }
 
-  if (extname(path).toLowerCase() == ".json") {
-    var template = Object(JSON.parse(String(fs.readFileSync(path))));
+  return template;
+}
+
+export async function get_template(path: string): Promise<template[]> {
+  var template: any;
+  if (!fs.existsSync(path)) {
+    template = [];
   } else {
-    var template = Object(yaml.load(String(fs.readFileSync(path))));
+    try {
+      switch (extname(path).toLowerCase()) {
+        case ".json":
+          template = JSON.parse(String(fs.readFileSync(path)));
+          break;
+        case ".yml":
+        case ".yaml":
+          template = yaml.load(String(fs.readFileSync(path)));
+          break;
+        default:
+          template = [];
+          break;
+      }
+    } catch (error: any) {
+      logger("warning", true, error);
+      logger("warning", true, "");
+      template = [];
+    }
   }
 
   return template;

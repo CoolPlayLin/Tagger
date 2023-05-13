@@ -24,7 +24,7 @@ inputs:
   debug:
     description: "Only Use for develop"
     required: false
-    default: 'false'
+    default: ${{ runner.debug == '1' }}
 
 runs:
   using: 'node16'

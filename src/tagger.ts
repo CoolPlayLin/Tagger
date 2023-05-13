@@ -12,16 +12,14 @@ export async function main(): Promise<void> {
     debug: core.getBooleanInput("debug"),
     removeAllTags: core.getBooleanInput("removeAllTags"),
   };
-
-  if (inputs.path.length == 0) {
-    var template = await until.output_tags(
-      inputs.token,
-      context.repo.repo,
-      context.repo.owner
-    );
-  } else {
-    var template = await until.get_template(inputs.path);
-  }
+  var template = await until.verify_template(
+    await until.get_template(inputs.path),
+    inputs,
+    {
+      repo: context.repo.repo,
+      owner: context.repo.owner,
+    }
+  );
 
   if (context.payload.issue?.number != undefined) {
     var tags = until.tag(
