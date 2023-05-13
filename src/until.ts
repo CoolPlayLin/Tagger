@@ -5,69 +5,99 @@ import * as yaml from "js-yaml";
 import { extname } from "path";
 
 export function tag(
-  labelConditions: template[],
-  title: string,
-  default_tag: string
+labelConditions: template[],
+title: string,
+default_tag: string
 ): Array<string> {
-  let labelsToAdd: Array<string> = [];
-  // Add tags based on conditions
-  for (const { tag, keywords } of labelConditions) {
-    for (const keyword of keywords) {
-      if (title.includes(keyword)) {
-        labelsToAdd.push(tag);
-        break;
-      }
-    }
-  }
+let labelsToAdd: Array<string> = [];
+// Add tags based on conditions
+for (const { tag, keywords } of labelConditions) {
+for (const keyword of keywords) {
+if (title.includes(keyword)) {
+labelsToAdd.push(tag);
+break;
+}
+}
+}
 
-  if (labelsToAdd.length == 0) {
-    labelsToAdd.push(default_tag);
-  }
+if (labelsToAdd.length == 0) {
+labelsToAdd.push(default_tag);
+}
 
-  return labelsToAdd;
+return labelsToAdd;
 }
 
 export async function output_tags(
-  token: string,
-  repo: string,
-  owner: string
+token: string,
+repo: string,
+owner: string
 ): Promise<template[]> {
-  var gh = new Octokit({
-    auth: token,
-  });
-  var res: template[] = [];
+var gh = new Octokit({
+auth: token,
+});
+var res: template[] = [];
 
-  const obj = await gh.issues.listLabelsForRepo({
-    owner: owner,
-    repo: repo,
-  });
+const obj = await gh.issues.listLabelsForRepo({
+owner: owner,
+repo: repo,
+});
 
-  const all_tags: Array<string> = obj.data.map(function (obj: { name: string }) {
-    return obj.name;
-  });
+const all_tags: Array<string> = obj.data.map(function (obj: {
+name: string;
+}) {
+return obj.name;
+});
 
-  for (const name of all_tags) {
-    res.push({
-      tag: name,
-      keywords: [name],
-    });
-  }
+for (const name of all_tags) {
+res.push({
+tag: name,
+keywords: [name],
+});
+}
 
-  return res;
+return res;
 }
 
 export async function get_template(path: string): Promise<template[]> {
-  const support = [".json", ".yaml", ".yml"];
-  if (!support.includes(extname(path).toLowerCase())) {
-    let error = Error(`Not support file type: ${extname(path).toLowerCase()}`);
-    throw error;
-  }
+const support = [".json", ".yaml", ".yml"];
+if (!support.includes(extname(path).toLowerCase())) {
+let error = Error(`Not support file type: ${extname(path).toLowerCase()}`);
+throw error;
+}
 
-  if (extname(path).toLowerCase() == ".json") {
-    var template = Object(JSON.parse(String(fs.readFileSync(path))));
-  } else {
-    var template = Object(yaml.load(String(fs.readFileSync(path))));
-  }
+if (extname(path).toLowerCase() == ".json") {
+var template = Object(JSON.parse(String(fs.readFileSync(path))));
+} else {
+var template = Object(yaml.load(String(fs.readFileSync(path))));
+}
 
-  return template;
+return template;
+}
+
+export function add_tags(
+token: string,
+removeAllTags: boolean,
+template: {
+repo: string;
+owner: string;
+number: number;
+tags: Array<string>;
+}
+) {
+const github = new Octokit({
+auth: token,
+});
+if (removeAllTags) {
+github.issues.removeAllLabels({
+repo: template.repo,
+owner: template.owner,
+issue_number: template.number,
+});
+}
+github.issues.addLabels({
+repo: template.repo,
+owner: template.owner,
+issue_number: template.number,
+labels: template.tags,
+});
 }
