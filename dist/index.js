@@ -11873,7 +11873,7 @@ __nccwpck_require__.d(__webpack_exports__, {
 });
 
 // EXTERNAL MODULE: ./node_modules/@actions/github/lib/github.js
-var lib_github = __nccwpck_require__(5438);
+var github = __nccwpck_require__(5438);
 // EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
 var core = __nccwpck_require__(2186);
 // EXTERNAL MODULE: ./node_modules/@octokit/rest/dist-node/index.js
@@ -15783,16 +15783,33 @@ async function get_template(path) {
         throw error;
     }
     if ((0,external_path_.extname)(path).toLowerCase() == ".json") {
-        var template = Object(JSON.parse(String(await external_fs_.readFileSync(path))));
+        var template = Object(JSON.parse(String(external_fs_.readFileSync(path))));
     }
     else {
         var template = Object(load(String(external_fs_.readFileSync(path))));
     }
     return template;
 }
+function add_tags(token, removeAllTags, template) {
+    const github = new dist_node/* Octokit */.v({
+        auth: token,
+    });
+    if (removeAllTags) {
+        github.issues.removeAllLabels({
+            repo: template.repo,
+            owner: template.owner,
+            issue_number: template.number,
+        });
+    }
+    github.issues.addLabels({
+        repo: template.repo,
+        owner: template.owner,
+        issue_number: template.number,
+        labels: template.tags,
+    });
+}
 
 ;// CONCATENATED MODULE: ./src/tagger.ts
-
 
 
 
@@ -15803,33 +15820,31 @@ async function main() {
         path: core.getInput("path"),
         default_tag: core.getInput("default-tag"),
         debug: core.getBooleanInput("debug"),
+        removeAllTags: core.getBooleanInput("removeAllTags"),
     };
-    var github = new dist_node/* Octokit */.v({
-        auth: inputs.token,
-    });
     if (inputs.path.length == 0) {
-        var template = await output_tags(inputs.token, lib_github.context.repo.repo, lib_github.context.repo.owner);
+        var template = await output_tags(inputs.token, github.context.repo.repo, github.context.repo.owner);
     }
     else {
         var template = await get_template(inputs.path);
     }
-    if (lib_github.context.payload.issue?.number != undefined) {
-        var tags = tag(template, lib_github.context.payload.issue.title, inputs.default_tag);
-        var number = lib_github.context.payload.issue.number;
+    if (github.context.payload.issue?.number != undefined) {
+        var tags = tag(template, github.context.payload.issue.title, inputs.default_tag);
+        var number = github.context.payload.issue.number;
     }
-    else if (lib_github.context.payload.pull_request?.title != undefined) {
-        var tags = tag(template, lib_github.context.payload.pull_request.title, inputs.default_tag);
-        var number = lib_github.context.payload.pull_request.number;
+    else if (github.context.payload.pull_request?.title != undefined) {
+        var tags = tag(template, github.context.payload.pull_request.title, inputs.default_tag);
+        var number = github.context.payload.pull_request.number;
     }
     else {
         const error = Error("No information about pull requests and issues is currently available");
         throw error;
     }
-    github.issues.addLabels({
-        repo: lib_github.context.repo.repo,
-        owner: lib_github.context.repo.owner,
-        issue_number: number,
-        labels: tags,
+    add_tags(inputs.token, inputs.removeAllTags, {
+        owner: github.context.repo.owner,
+        repo: github.context.repo.repo,
+        number: number,
+        tags: tags,
     });
 }
 
