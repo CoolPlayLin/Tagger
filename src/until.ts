@@ -1,12 +1,11 @@
-import { error } from "console";
-import { template } from "./typing";
+import { template } from "./types";
 import { Octokit } from "@octokit/rest";
 import * as fs from "fs";
 import * as yaml from "js-yaml";
 import { extname } from "path";
 
 export function tag(
-  labelConditions: template[] | any,
+  labelConditions: template[],
   title: string,
   default_tag: string
 ): Array<string> {
@@ -43,7 +42,7 @@ export async function output_tags(
     repo: repo,
   });
 
-  const all_tags: Array<string> = obj.data.map(function (obj: { name: any }) {
+  const all_tags: Array<string> = obj.data.map(function (obj: { name: string }) {
     return obj.name;
   });
 
@@ -65,7 +64,7 @@ export async function get_template(path: string): Promise<template[]> {
   }
 
   if (extname(path).toLowerCase() == ".json") {
-    var template = Object(JSON.parse(String(await fs.readFileSync(path))));
+    var template = Object(JSON.parse(String(fs.readFileSync(path))));
   } else {
     var template = Object(yaml.load(String(fs.readFileSync(path))));
   }

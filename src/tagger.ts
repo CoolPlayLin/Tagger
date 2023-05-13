@@ -1,7 +1,7 @@
 import { context } from "@actions/github";
 import * as core from "@actions/core";
 import { Octokit } from "@octokit/rest";
-import * as t from "./typing";
+import * as t from "./types";
 import * as until from "./until";
 
 export async function main(): Promise<void> {
@@ -11,6 +11,7 @@ export async function main(): Promise<void> {
     path: core.getInput("path"),
     default_tag: core.getInput("default-tag"),
     debug: core.getBooleanInput("debug"),
+    removeAllTags: core.getBooleanInput("removeAllTags"),
   };
   var github = new Octokit({
     auth: inputs.token,
@@ -47,6 +48,13 @@ export async function main(): Promise<void> {
     throw error;
   }
 
+  if (inputs.removeAllTags) {
+    github.issues.removeAllLabels({
+      repo: context.repo.repo,
+      owner: context.repo.owner,
+      issue_number: number,
+    });
+  }
   github.issues.addLabels({
     repo: context.repo.repo,
     owner: context.repo.owner,

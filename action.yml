@@ -17,6 +17,10 @@ inputs:
     description: 'The label used when all labels do not match'
     required: false
     default: 'triage-needed'
+  removeAllTags:
+    description: 'Remove all tags before adding tags'
+    required: false
+    default: 'false'
   debug:
     description: "Only Use for develop"
     required: false

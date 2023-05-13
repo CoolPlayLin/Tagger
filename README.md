@@ -64,8 +64,9 @@ repo-token: ${{ secrets.PAT }}
 
 ## Inputs
 
-| Arguments   | Description                                 | Default         | Require |
-| ----------- | ------------------------------------------- | --------------- | ------- |
-| repo-token  | The GitHub token used to manage labels      | `github.token`  | No      |
-| path        | The path to the configuration file          |                 | No      |
-| default-tag | The label used when all labels do not match | `triage-needed` | No      |
+| Arguments     | Description                                 | Default         | Type    | Require |
+| ------------- | ------------------------------------------- | --------------- | ------- | ------- |
+| repo-token    | The GitHub token used to manage labels      | `github.token`  | string  | No      |
+| path          | The path to the configuration file          |                 | string  | No      |
+| default-tag   | The label used when all labels do not match | `triage-needed` | string  | No      |
+| removeAllTags | Remove all tags before adding tags          | `false`         | boolean | No      |
