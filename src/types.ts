@@ -3,7 +3,7 @@ export interface inputs {
   path: string;
   default_tag: string;
   debug: boolean;
-  removeAllTags: boolean
+  removeAllTags: boolean;
 }
 
 export interface template {
