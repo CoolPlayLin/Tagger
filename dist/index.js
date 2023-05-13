@@ -15780,6 +15780,35 @@ var external_path_ = __nccwpck_require__(1017);
 
 
 
+function logger(type, output_only, value) {
+    value = String(value);
+    if (output_only) {
+        switch (type) {
+            case "error":
+                console.log(`Error: ${value}`);
+                return true;
+            case "event":
+                console.log(`Event: ${value}`);
+                return true;
+            case "warning":
+                console.log(`Warning: ${value}`);
+                return true;
+        }
+    }
+    else {
+        switch (type) {
+            case "error":
+                console.error(`Error: ${value}`);
+                return true;
+            case "event":
+                console.log(`Event: ${value}`);
+                return true;
+            case "warning":
+                console.warn(`Warning: ${value}`);
+                return true;
+        }
+    }
+}
 function tag(labelConditions, title, default_tag) {
     let labelsToAdd = [];
     // Add tags based on conditions
@@ -15816,17 +15845,37 @@ async function output_tags(token, repo, owner) {
     }
     return res;
 }
-async function get_template(path) {
-    const support = [".json", ".yaml", ".yml"];
-    if (!support.includes((0,external_path_.extname)(path).toLowerCase())) {
-        let error = Error(`Not support file type: ${(0,external_path_.extname)(path).toLowerCase()}`);
-        throw error;
+async function verify_template(template, inputs, options) {
+    if (template.length) {
+        template = await output_tags(inputs.token, options.repo, options.owner);
     }
-    if ((0,external_path_.extname)(path).toLowerCase() == ".json") {
-        var template = Object(JSON.parse(String(external_fs_.readFileSync(path))));
+    return template;
+}
+async function get_template(path) {
+    var template;
+    if (!external_fs_.existsSync(path)) {
+        template = [];
     }
     else {
-        var template = Object(load(String(external_fs_.readFileSync(path))));
+        try {
+            switch ((0,external_path_.extname)(path).toLowerCase()) {
+                case ".json":
+                    template = JSON.parse(String(external_fs_.readFileSync(path)));
+                    break;
+                case ".yml":
+                case ".yaml":
+                    template = load(String(external_fs_.readFileSync(path)));
+                    break;
+                default:
+                    template = [];
+                    break;
+            }
+        }
+        catch (error) {
+            logger("warning", true, error);
+            logger("warning", true, "");
+            template = [];
+        }
     }
     return template;
 }
@@ -15862,12 +15911,10 @@ async function main() {
         debug: core.getBooleanInput("debug"),
         removeAllTags: core.getBooleanInput("removeAllTags"),
     };
-    if (inputs.path.length == 0) {
-        var template = await output_tags(inputs.token, github.context.repo.repo, github.context.repo.owner);
-    }
-    else {
-        var template = await get_template(inputs.path);
-    }
+    var template = await verify_template(await get_template(inputs.path), inputs, {
+        repo: github.context.repo.repo,
+        owner: github.context.repo.owner,
+    });
     if (github.context.payload.issue?.number != undefined) {
         var tags = tag(template, github.context.payload.issue.title, inputs.default_tag);
         var number = github.context.payload.issue.number;
