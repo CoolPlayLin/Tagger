@@ -69,7 +69,6 @@ export async function output_tags(
     auth: token,
   });
   var res: template[] = [];
-
   const obj = await gh.issues.listLabelsForRepo({
     owner: owner,
     repo: repo,

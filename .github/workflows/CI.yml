@@ -5,24 +5,40 @@ on:
     branches: [master]
   pull_request:
     branches: [master]
+    types: [opened, edited, reopened, synchronize]
 
 jobs:
- build:
-  runs-on: ubuntu-latest
-  if: github.event.pusher.name != vars.COOLPLAYLIN_BOT_NAME
-  strategy:
-    matrix:
-      node: [16, 17, 18, 19, 20]
-  steps:
-   - name: Checkout
-     uses: actions/checkout@master
-   - name: Setup Node ${{ matrix.node }} environment
-     uses: actions/setup-node@v2.5.2
-     with:
-        node-version: ${{ matrix.node }}
-   - name: Install dependencies
-     run: npm install
-   - name: Build
-     run: npm run build
-   - name: Test
-     run: npm test
+  build:
+    runs-on: ubuntu-latest
+    if: github.event.pusher.name != vars.COOLPLAYLIN_BOT_NAME
+    strategy:
+      matrix:
+        node: [16, 17, 18, 19, 20]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+      - name: Setup Node ${{ matrix.node }} environment
+        uses: actions/setup-node@v2.5.2
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Install dependencies
+        run: npm install
+      - name: Build
+        run: npm run build
+      - name: Test
+        run: npm test
+  approve:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.pull_request.user.name == 'coolplaylin'
+    steps:
+      - name: Approve
+        uses: actions/github-script@v2.1.0
+        with:
+          github-token: ${{ secrets.COOLPLAYLIN_BOT_TOKEN }}
+          script: |
+            github.pulls.createReview({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              event: "APPROVE"
+            })
