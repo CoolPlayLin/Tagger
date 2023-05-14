@@ -3,7 +3,6 @@ import * as core from "@actions/core";
 import * as t from "./types";
 import * as until from "./until";
 
-
 export async function main(): Promise<void> {
   // Get base information
   var inputs: t.inputs = {
