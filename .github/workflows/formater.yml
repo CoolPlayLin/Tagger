@@ -44,6 +44,6 @@ jobs:
        if [[ -n $(git status -s) ]]; then
        git commit -m "[Automated] Format All of the file"
        fi
-    - name: Push to master branch
+    - name: Push to branch
       run: |
        git push origin --force

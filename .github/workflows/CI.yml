@@ -2,7 +2,6 @@ name: CI
 
 on:
   push:
-    branches: [master]
   pull_request:
     branches: [master]
     types: [opened, edited, reopened, synchronize]
@@ -29,7 +28,7 @@ jobs:
         run: npm test
   approve:
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && github.event.pull_request.user.name == 'coolplaylin'
+    if: github.event_name == 'pull_request' && github.event.pull_request.user.login == 'coolplaylin'
     steps:
       - name: Approve
         uses: actions/github-script@v2.1.0
