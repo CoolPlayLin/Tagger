@@ -4411,7 +4411,7 @@ var pluginRequestLog = __nccwpck_require__(8883);
 var pluginPaginateRest = __nccwpck_require__(606);
 var pluginRestEndpointMethods = __nccwpck_require__(4923);
 
-const VERSION = "19.0.7";
+const VERSION = "19.0.8";
 
 const Octokit = core.Octokit.plugin(pluginRequestLog.requestLog, pluginRestEndpointMethods.legacyRestEndpointMethods, pluginPaginateRest.paginateRest).defaults({
   userAgent: `octokit-rest.js/${VERSION}`
