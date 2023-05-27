@@ -12,45 +12,47 @@ export function main(): void {
     debug: core.getBooleanInput("debug"),
     removeAllTags: core.getBooleanInput("removeAllTags"),
   };
-  until.get_template(inputs.path).then((template) => {
-    return until.verify_template(template, inputs, {
-      repo: context.repo.repo,
-      owner: context.repo.owner,
-    });
-  })
-  .then(template => {
-    if (context.payload.issue?.number != undefined) {
-      var tags = until.tag(
-        template,
-        context.payload.issue.title,
-        inputs.default_tag
-      );
-      var number = context.payload.issue.number;
-    } else if (context.payload.pull_request?.title != undefined) {
-      var tags = until.tag(
-        template,
-        context.payload.pull_request.title,
-        inputs.default_tag
-      );
-      var number = context.payload.pull_request.number;
-    } else {
-      const error = Error(
-        "No information about pull requests and issues is currently available"
-      );
-      throw error;
-    }
+  until
+    .get_template(inputs.path)
+    .then((template) => {
+      return until.verify_template(template, inputs, {
+        repo: context.repo.repo,
+        owner: context.repo.owner,
+      });
+    })
+    .then((template) => {
+      if (context.payload.issue?.number != undefined) {
+        var tags = until.tag(
+          template,
+          context.payload.issue.title,
+          inputs.default_tag
+        );
+        var number = context.payload.issue.number;
+      } else if (context.payload.pull_request?.title != undefined) {
+        var tags = until.tag(
+          template,
+          context.payload.pull_request.title,
+          inputs.default_tag
+        );
+        var number = context.payload.pull_request.number;
+      } else {
+        const error = Error(
+          "No information about pull requests and issues is currently available"
+        );
+        throw error;
+      }
 
-    return {
-      tags: tags,
-      number: number
-    }
-  })
-  .then(res => {
-    until.add_tags(inputs.token, inputs.removeAllTags, {
-      owner: context.repo.owner,
-      repo: context.repo.repo,
-      number: res.number,
-      tags: res.tags,
+      return {
+        tags: tags,
+        number: number,
+      };
+    })
+    .then((res) => {
+      until.add_tags(inputs.token, inputs.removeAllTags, {
+        owner: context.repo.owner,
+        repo: context.repo.repo,
+        number: res.number,
+        tags: res.tags,
+      });
     });
-  })
 }
