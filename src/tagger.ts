@@ -59,7 +59,7 @@ export function main(): void {
           issue_number: res.number,
         });
       }
-      until.add_tags(inputs.token, inputs.removeAllTags, {
+      until.add_tags(inputs.token, {
         owner: context.repo.owner,
         repo: context.repo.repo,
         number: res.number,

@@ -135,7 +135,6 @@ export async function get_template(path: string): Promise<template[]> {
 
 export function add_tags(
   token: string,
-  removeAllTags: boolean,
   template: {
     repo: string;
     owner: string;

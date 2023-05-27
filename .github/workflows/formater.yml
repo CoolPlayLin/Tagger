@@ -2,7 +2,7 @@ name: Formater
 
 on:
   push:
-    branches: [dev]
+    branches: [dev, dev*, patch*]
   workflow_dispatch:
 
 jobs:
@@ -18,29 +18,34 @@ jobs:
       run: |
        git config --global user.email ${{ vars.COOLPLAYLIN_BOT_EMAIL }}
        git config --global user.name ${{ vars.COOLPLAYLIN_BOT_NAME }}
-    - name: Delete old dist folder
-      if: github.event_name != 'push'
-      run: |
-       if [ -d "dist" ]; then
-       rm -rf "dist"
-       fi
-       if [ -d "package-lock.json" ]; then
-       rm -rf "package-lock.json"
-       fi
     - name: Setup Node.js environment
       uses: actions/setup-node@v2.5.2
       with:
         node-version: '16'
     - name: Install dependencies
       run: npm install
-    - name: Build dist file
-      if: github.event_name != 'push'
+    - name: Update dependencies
       run: |
-       npm run build
-       git add dist --force
-       if [[ -n $(git status -s) ]]; then
-       git commit -m "[Automated] Upload dist file"
-       fi
+        if [ -d "package-lock.json" ]; then
+        rm -rf "package-lock.json"
+        fi
+        if [[ -n $(npm outdated) ]]; then
+        npm update
+        fi
+        git add .
+        if [[ -n $(git status -s) ]]; then
+        git commit -m "[Automated] Update package-lock.json"
+        fi
+    - name: Build dist file
+      run: |
+        if [ -d "dist" ]; then
+        rm -rf "dist"
+        fi
+        npm run build
+        git add dist --force
+        if [[ -n $(git status -s) ]]; then
+        git commit -m "[Automated] Upload dist file"
+        fi
     - name: Format with Prettier
       run: |
        npm run format:w

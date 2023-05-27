@@ -7,8 +7,8 @@
     "test": "npm run build:test && node __tests__/index.js",
     "build": "ncc build src/main.ts",
     "build:test": "ncc build src/tests/main.test.ts -o __tests__/",
-    "format:w": "prettier --write src",
-    "format:r": "prettier --check src"
+    "format:w": "prettier --write src *.md *.json",
+    "format:r": "prettier --check src *.md *.json"
   },
   "repository": {
     "type": "git",
