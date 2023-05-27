@@ -1,6 +1,7 @@
 import { context } from "@actions/github";
 import * as core from "@actions/core";
 import * as t from "./types";
+import { Octokit } from "@octokit/rest";
 import * as until from "./until";
 
 export function main(): void {
@@ -48,6 +49,16 @@ export function main(): void {
       };
     })
     .then((res) => {
+      if (inputs.removeAllTags) {
+        const github = new Octokit({
+          auth: inputs.token
+        })
+        github.issues.removeAllLabels({
+          repo: context.repo.repo,
+          owner: context.repo.owner,
+          issue_number: res.number,
+        });
+      }
       until.add_tags(inputs.token, inputs.removeAllTags, {
         owner: context.repo.owner,
         repo: context.repo.repo,
