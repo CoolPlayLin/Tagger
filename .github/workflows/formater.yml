@@ -2,7 +2,7 @@ name: Formater
 
 on:
   push:
-    branches: [dev]
+    branches: [dev, dev*, patch*]
   workflow_dispatch:
 
 jobs:
