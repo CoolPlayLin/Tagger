@@ -51,8 +51,8 @@ export function main(): void {
     .then((res) => {
       if (inputs.removeAllTags) {
         const github = new Octokit({
-          auth: inputs.token
-        })
+          auth: inputs.token,
+        });
         github.issues.removeAllLabels({
           repo: context.repo.repo,
           owner: context.repo.owner,
