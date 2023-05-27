@@ -1,13 +1,17 @@
-import { output_tags, get_template, logger } from "../src/until";
+import { output_tags, get_template, logger } from "../until";
 import { resolve, join } from "path";
+import { test } from "node:test";
 
-var CorrectTemplate = [
-  { tag: "bug", keywords: ["bug"] },
-  { tag: "enhancement", keywords: ["documentation"] },
-  { tag: "help wanted", keywords: ["help wanted"] },
-];
+// Test
+// throw Error("a joke");
 
-async function main(): Promise<void> {
+test("Template-Reading", async () => {
+  var CorrectTemplate = [
+    { tag: "bug", keywords: ["bug"] },
+    { tag: "enhancement", keywords: ["documentation"] },
+    { tag: "help wanted", keywords: ["help wanted"] },
+  ];
+
   logger("event", true, "Output tag testing.....");
   console.log(await output_tags("", "Tagger", "CoolPlayLin"));
   logger("event", true, "Output Template(main.yml)..... (1)");
@@ -15,9 +19,9 @@ async function main(): Promise<void> {
     await get_template(join(resolve(__dirname, ".."), "template", "main.yml"))
   );
   if (
-    (await get_template(
-      join(resolve(__dirname, ".."), "template", "main.yml")
-    )) == CorrectTemplate
+    JSON.stringify(
+      await get_template(join(resolve(__dirname, "."), "template", "main.yml"))
+    ) === JSON.stringify(CorrectTemplate)
   ) {
     logger("event", true, "Template is correct");
   } else {
@@ -28,21 +32,13 @@ async function main(): Promise<void> {
     await get_template(join(resolve(__dirname, ".."), "template", "main.json"))
   );
   if (
-    (await get_template(
-      join(resolve(__dirname, ".."), "template", "main.json")
-    )) == CorrectTemplate
+    JSON.stringify(
+      await get_template(join(resolve(__dirname, "."), "template", "main.json"))
+    ) === JSON.stringify(CorrectTemplate)
   ) {
     logger("event", true, "Template is correct.");
   } else {
     logger("warning", true, "Template is wrong");
   }
   logger("event", true, "The testing Template-Reading has been successful.");
-}
-
-try {
-  await main();
-  logger("event", true, "Unit-Testing has been successful.");
-} catch (error: any) {
-  logger("error", true, error);
-  console.error("Something tests fail");
-}
+});

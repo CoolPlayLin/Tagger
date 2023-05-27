@@ -146,13 +146,6 @@ export function add_tags(
   const github = new Octokit({
     auth: token,
   });
-  if (removeAllTags) {
-    github.issues.removeAllLabels({
-      repo: template.repo,
-      owner: template.owner,
-      issue_number: template.number,
-    });
-  }
   github.issues.addLabels({
     repo: template.repo,
     owner: template.owner,

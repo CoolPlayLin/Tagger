@@ -5,15 +5,21 @@ on:
   pull_request:
     branches: [master]
     types: [opened, edited, reopened, synchronize]
+
+permissions:
+  issues: write
+  pull-requests: write
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     if: github.event.pusher.name != vars.COOLPLAYLIN_BOT_NAME
     strategy:
+      fail-fast: false
       matrix:
-        node: [16, 17, 18, 19, 20]
+        node: [18, 19, 20]
+        os: [ubuntu-latest]
     steps:
-      - name: Checkout
+      - name: Checkout in ${{ matrix.os }}
         uses: actions/checkout@master
       - name: Setup Node ${{ matrix.node }} environment
         uses: actions/setup-node@v2.5.2
@@ -25,7 +31,19 @@ jobs:
         run: npm run build
       - name: Test
         run: npm test
-  approve-bot:
+      - name: Comment
+        if: failure()
+        uses: actions/github-script@v2.1.0
+        with:
+          script: |
+            github.pulls.createReview({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: "@${{ github.event.pull_request.user.login }},\nCheck in ${{ matrix.os }} with node.js ${{ matrix.node }} has been failed\nPlease check your code.",
+              pull_number: context.payload.pull_request.number,
+              event: "REQUEST_CHANGES"
+            })
+  OwnerApprove:
     needs: build
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
@@ -39,6 +57,7 @@ jobs:
             github.pulls.createReview({
               owner: context.repo.owner,
               repo: context.repo.repo,
+              body: "@${{ github.event.pull_request.user.login }},\nYour pull request has been automatically approved",
               pull_number: context.payload.pull_request.number,
               event: "APPROVE"
             })
@@ -51,16 +70,14 @@ jobs:
             github.pulls.createReview({
               owner: context.repo.owner,
               repo: context.repo.repo,
+              body: "@${{ github.event.pull_request.user.login }},\nYour pull request has been automatically approved by us",
               pull_number: context.payload.pull_request.number,
               event: "APPROVE"
             })
-  approve-action:
+  ActionApprove:
     needs: build
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
-    permissions:
-      issues: write
-      pull-requests: write
     steps:
       - name: Approve
         uses: actions/github-script@v2.1.0
@@ -70,7 +87,7 @@ jobs:
             github.pulls.createReview({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: "@${{ github.event.pull_request.user.login }} All Check has been passed",
+              body: "@${{ github.event.pull_request.user.login }},\nAll check has been passed",
               pull_number: context.payload.pull_request.number,
               event: "APPROVE"
             })
