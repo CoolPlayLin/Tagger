@@ -5,7 +5,6 @@ on:
   pull_request:
     branches: [master]
     types: [opened, edited, reopened, synchronize]
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -26,12 +25,12 @@ jobs:
         run: npm run build
       - name: Test
         run: npm test
-  approve:
+  approve-bot:
     needs: build
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     steps:
-      - name: Approve (CoolPlayLin)
+      - name: Approve CoolPlayLin
         if: github.event.pull_request.user.login == 'coolplaylin'
         uses: actions/github-script@v2.1.0
         with:
@@ -43,8 +42,8 @@ jobs:
               pull_number: context.payload.pull_request.number,
               event: "APPROVE"
             })
-      - name: Approve (Dependabot)
-        if: github.event.pull_request.user.login == 'dependabot'
+      - name: Approve Dependabot
+        if: github.event.pull_request.user.login == 'dependabot[bot]'
         uses: actions/github-script@v2.1.0
         with:
           github-token: ${{ secrets.COOLPLAYLIN_BOT_TOKEN }}
@@ -52,6 +51,26 @@ jobs:
             github.pulls.createReview({
               owner: context.repo.owner,
               repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              event: "APPROVE"
+            })
+  approve-action:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Approve
+        uses: actions/github-script@v2.1.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.pulls.createReview({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: "@${{ github.event.pull_request.user.login }} All Check has been passed",
               pull_number: context.payload.pull_request.number,
               event: "APPROVE"
             })
