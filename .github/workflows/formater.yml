@@ -72,6 +72,6 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: "[Automated] Update",
-              head: "coolplaylin:master",
-              base: "patch-${{ steps.time.outputs.time }}"
+              head: "coolplaylin:patch-${{ steps.time.outputs.time }}",
+              base: "coolplaylin:master"
             })
