@@ -2,6 +2,9 @@ import { output_tags, get_template, logger } from "../until";
 import { resolve, join } from "path";
 import { test } from "node:test";
 
+// Test
+throw Error("a joke")
+
 test("Template-Reading", async () => {
   var CorrectTemplate = [
     { tag: "bug", keywords: ["bug"] },
