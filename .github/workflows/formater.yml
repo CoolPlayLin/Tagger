@@ -55,8 +55,13 @@ jobs:
           git commit -m "[Automated] Format All of the file"
           fi
       - name: Push to branch
+        if: github.event_name != 'push'
         run: |
           git push origin --force
+      - name: Push to branch
+        if: github.event_name != 'push'
+        run: |
+         git push --set-upstream origin patch-${{ steps.time.outputs.time }}
       - name: Open PR
         if: github.event_name != 'push'
         uses: actions/github-script@v2.1.0
