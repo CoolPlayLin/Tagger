@@ -72,6 +72,19 @@ jobs:
               pull_number: context.payload.pull_request.number,
               event: "APPROVE"
             })
+      - name: Approve Renovate
+        if: github.event.pull_request.user.login == 'renovate[bot]'
+        uses: actions/github-script@v2.1.0
+        with:
+          github-token: ${{ secrets.COOLPLAYLIN_BOT_TOKEN }}
+          script: |
+            github.pulls.createReview({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: "@${{ github.event.pull_request.user.login }},\nYour pull request has been automatically approved by us",
+              pull_number: context.payload.pull_request.number,
+              event: "APPROVE"
+            })
   ActionApprove:
     needs: build
     runs-on: ubuntu-latest
