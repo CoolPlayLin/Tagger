@@ -12438,12 +12438,6 @@ var __webpack_exports__ = {};
 // ESM COMPAT FLAG
 __nccwpck_require__.r(__webpack_exports__);
 
-// EXTERNAL MODULE: ./node_modules/@actions/github/lib/github.js
-var lib_github = __nccwpck_require__(5438);
-// EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
-var core = __nccwpck_require__(2186);
-// EXTERNAL MODULE: ./node_modules/@octokit/rest/dist-node/index.js
-var dist_node = __nccwpck_require__(5375);
 // EXTERNAL MODULE: external "fs"
 var external_fs_ = __nccwpck_require__(7147);
 ;// CONCATENATED MODULE: ./node_modules/js-yaml/dist/js-yaml.mjs
@@ -13189,7 +13183,7 @@ var json = failsafe.extend({
   ]
 });
 
-var js_yaml_core = json;
+var core = json;
 
 var YAML_DATE_REGEXP = new RegExp(
   '^([0-9][0-9][0-9][0-9])'          + // [1] year
@@ -13526,7 +13520,7 @@ var set = new type('tag:yaml.org,2002:set', {
   construct: constructYamlSet
 });
 
-var _default = js_yaml_core.extend({
+var _default = core.extend({
   implicit: [
     timestamp,
     merge
@@ -16250,7 +16244,7 @@ var Type                = type;
 var Schema              = schema;
 var FAILSAFE_SCHEMA     = failsafe;
 var JSON_SCHEMA         = json;
-var CORE_SCHEMA         = js_yaml_core;
+var CORE_SCHEMA         = core;
 var DEFAULT_SCHEMA      = _default;
 var load                = loader.load;
 var loadAll             = loader.loadAll;
@@ -16301,6 +16295,36 @@ var jsYaml = {
 
 // EXTERNAL MODULE: external "path"
 var external_path_ = __nccwpck_require__(1017);
+// EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
+var lib_core = __nccwpck_require__(2186);
+// EXTERNAL MODULE: ./node_modules/@octokit/rest/dist-node/index.js
+var dist_node = __nccwpck_require__(5375);
+;// CONCATENATED MODULE: ./src/envs/env.ts
+
+
+var github;
+var inputs;
+try {
+    inputs = {
+        token: lib_core.getInput("repo-token"),
+        path: lib_core.getInput("path"),
+        default_tag: lib_core.getInput("default-tag"),
+        debug: lib_core.getBooleanInput("debug"),
+        removeAllTags: lib_core.getBooleanInput("removeAllTags"),
+    };
+}
+catch (_a) {
+    inputs = undefined;
+}
+try {
+    github = new dist_node.Octokit({
+        auth: inputs.token
+    });
+}
+catch (_b) {
+    github = new dist_node.Octokit;
+}
+
 ;// CONCATENATED MODULE: ./src/until.ts
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -16362,11 +16386,8 @@ function tag(labelConditions, title, default_tag) {
 }
 function output_tags(token, repo, owner) {
     return __awaiter(this, void 0, void 0, function* () {
-        var gh = new dist_node.Octokit({
-            auth: token,
-        });
         var res = [];
-        const obj = yield gh.issues.listLabelsForRepo({
+        const obj = yield github.issues.listLabelsForRepo({
             owner: owner,
             repo: repo,
         });
@@ -16421,9 +16442,6 @@ function get_template(path) {
     });
 }
 function add_tags(token, template) {
-    const github = new dist_node.Octokit({
-        auth: token,
-    });
     github.issues.addLabels({
         repo: template.repo,
         owner: template.owner,
@@ -16432,62 +16450,53 @@ function add_tags(token, template) {
     });
 }
 
+// EXTERNAL MODULE: ./node_modules/@actions/github/lib/github.js
+var lib_github = __nccwpck_require__(5438);
+;// CONCATENATED MODULE: ./src/envs/index.ts
+var _a, _b, _c;
+
+const envs = {
+    owner: lib_github.context.repo.owner,
+    repo: lib_github.context.repo.repo,
+    number: ((_a = lib_github.context.payload.issue) === null || _a === void 0 ? void 0 : _a.number) || ((_b = lib_github.context.payload.pull_request) === null || _b === void 0 ? void 0 : _b.number) || -1,
+    title: (_c = lib_github.context.payload.issue) === null || _c === void 0 ? void 0 : _c.title,
+};
+
 ;// CONCATENATED MODULE: ./src/tagger.ts
 
 
 
-
 function main() {
+    // Verify env
+    if (!envs.title || envs.number == -1) {
+        const error = Error("No information about pull requests and issues is currently available");
+        throw error;
+    }
     // Get base information
-    var inputs = {
-        token: core.getInput("repo-token"),
-        path: core.getInput("path"),
-        default_tag: core.getInput("default-tag"),
-        debug: core.getBooleanInput("debug"),
-        removeAllTags: core.getBooleanInput("removeAllTags"),
-    };
     get_template(inputs.path)
         .then((template) => {
         return verify_template(template, inputs, {
-            repo: lib_github.context.repo.repo,
-            owner: lib_github.context.repo.owner,
+            repo: envs.repo,
+            owner: envs.owner,
         });
     })
         .then((template) => {
-        var _a, _b;
-        if (((_a = lib_github.context.payload.issue) === null || _a === void 0 ? void 0 : _a.number) != undefined) {
-            var tags = tag(template, lib_github.context.payload.issue.title, inputs.default_tag);
-            var number = lib_github.context.payload.issue.number;
-        }
-        else if (((_b = lib_github.context.payload.pull_request) === null || _b === void 0 ? void 0 : _b.title) != undefined) {
-            var tags = tag(template, lib_github.context.payload.pull_request.title, inputs.default_tag);
-            var number = lib_github.context.payload.pull_request.number;
-        }
-        else {
-            const error = Error("No information about pull requests and issues is currently available");
-            throw error;
-        }
-        return {
-            tags: tags,
-            number: number,
-        };
+        var tags = tag(template, envs.title, inputs.default_tag);
+        return tags;
     })
-        .then((res) => {
+        .then((tags) => {
         if (inputs.removeAllTags) {
-            const github = new dist_node.Octokit({
-                auth: inputs.token,
-            });
             github.issues.removeAllLabels({
-                repo: lib_github.context.repo.repo,
-                owner: lib_github.context.repo.owner,
-                issue_number: res.number,
+                repo: envs.repo,
+                owner: envs.owner,
+                issue_number: envs.number,
             });
         }
         add_tags(inputs.token, {
-            owner: lib_github.context.repo.owner,
-            repo: lib_github.context.repo.repo,
-            number: res.number,
-            tags: res.tags,
+            owner: envs.owner,
+            repo: envs.repo,
+            number: envs.number,
+            tags: tags,
         });
     });
 }
