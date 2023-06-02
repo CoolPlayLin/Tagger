@@ -4,6 +4,8 @@ on:
   pull_request:
     branches: [master]
     types: [opened, edited, reopened, synchronize]
+  push:
+    branches: [master]
 
 permissions:
   issues: write
@@ -42,7 +44,6 @@ jobs:
               event: "REQUEST_CHANGES"
             })
   OwnerApprove:
-    needs: build
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     steps:
@@ -91,6 +92,7 @@ jobs:
     if: github.event_name == 'pull_request'
     steps:
       - name: Approve
+        if: github.event.pull_request.user.login != 'github-actions[bot]'
         uses: actions/github-script@v2.1.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
