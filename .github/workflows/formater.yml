@@ -76,7 +76,7 @@ jobs:
         git push --set-upstream origin patch-${{ steps.time.outputs.time }}
         fi
     - name: OpenPR
-      uses: actions/github-script@v2.1.0
+      uses: actions/github-script@v6.4.1
       with:
         script: |
           if ("${{ steps.dependencies.outputs.status }}" || "${{ steps.dist.outputs.status }}" || "${{ steps.format.outputs.status }}"){

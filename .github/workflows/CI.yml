@@ -62,7 +62,7 @@ jobs:
             })
       - name: Approve Dependabot
         if: github.event.pull_request.user.login == 'dependabot[bot]'
-        uses: actions/github-script@v2.1.0
+        uses: actions/github-script@v6.4.1
         with:
           github-token: ${{ secrets.COOLPLAYLIN_BOT_TOKEN }}
           script: |
@@ -75,7 +75,7 @@ jobs:
             })
       - name: Approve Renovate
         if: github.event.pull_request.user.login == 'renovate[bot]'
-        uses: actions/github-script@v2.1.0
+        uses: actions/github-script@v6.4.1
         with:
           github-token: ${{ secrets.COOLPLAYLIN_BOT_TOKEN }}
           script: |
@@ -93,7 +93,7 @@ jobs:
     steps:
       - name: Approve
         if: github.event.pull_request.user.login != 'github-actions[bot]'
-        uses: actions/github-script@v2.1.0
+        uses: actions/github-script@v6.4.1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
