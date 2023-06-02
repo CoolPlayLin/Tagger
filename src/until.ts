@@ -1,8 +1,8 @@
 import { inputs, template } from "./types";
-import { Octokit } from "@octokit/rest";
 import * as fs from "fs";
 import * as yaml from "js-yaml";
 import { extname } from "path";
+import { github } from "./envs/env";
 
 export function logger(
   type: "error" | "event" | "warning",
@@ -65,11 +65,8 @@ export async function output_tags(
   repo: string,
   owner: string
 ): Promise<template[]> {
-  var gh = new Octokit({
-    auth: token,
-  });
   var res: template[] = [];
-  const obj = await gh.issues.listLabelsForRepo({
+  const obj = await github.issues.listLabelsForRepo({
     owner: owner,
     repo: repo,
   });
@@ -142,9 +139,6 @@ export function add_tags(
     tags: Array<string>;
   }
 ) {
-  const github = new Octokit({
-    auth: token,
-  });
   github.issues.addLabels({
     repo: template.repo,
     owner: template.owner,

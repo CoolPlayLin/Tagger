@@ -1,4 +1,4 @@
-import { output_tags, get_template, logger } from "../until";
+import { output_tags, get_template, logger } from "../../src/until";
 import { resolve, join } from "path";
 import { test } from "node:test";
 
