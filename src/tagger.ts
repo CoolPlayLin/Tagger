@@ -4,11 +4,11 @@ import { envs } from "./envs";
 
 export function main(): void {
   // Verify env
-  if (!envs.title || envs.number == -1){
+  if (!envs.title || envs.number == -1) {
     const error = Error(
       "No information about pull requests and issues is currently available"
     );
-    throw error
+    throw error;
   }
   // Get base information
   until
@@ -20,13 +20,9 @@ export function main(): void {
       });
     })
     .then((template) => {
-        var tags = until.tag(
-          template,
-          envs.title,
-          inputs.default_tag
-        );
-      return tags
-        })
+      var tags = until.tag(template, envs.title, inputs.default_tag);
+      return tags;
+    })
     .then((tags) => {
       if (inputs.removeAllTags) {
         github.issues.removeAllLabels({
