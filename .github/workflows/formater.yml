@@ -2,20 +2,31 @@ name: Formater
 
 on:
   push:
-    branches: [dev, dev*, patch*]
+    branches: [master]
   workflow_dispatch:
 
 jobs:
  build:
   runs-on: ubuntu-latest
   if: github.event.pusher.name != vars.COOLPLAYLIN_BOT_NAME
+  outputs:
+    dependencies: ${{ steps.dependencies.outputs.status }}
+    dist: ${{ steps.dist.outputs.status }}
+    format: ${{ steps.format.outputs.status }}
   steps:
     - name: Checkout
       uses: actions/checkout@master
       with:
         token: ${{ secrets.COOLPLAYLIN_BOT_TOKEN }}
+    - name: Get Time
+      id: time
+      uses: nanzm/get-time-action@v2.0
+      with:
+        timeZone: 8
+        format: 'YYYYMMDDHHmmss'
     - name: Set up Information
       run: |
+       git checkout -b patch-${{ steps.time.outputs.time }}
        git config --global user.email ${{ vars.COOLPLAYLIN_BOT_EMAIL }}
        git config --global user.name ${{ vars.COOLPLAYLIN_BOT_NAME }}
     - name: Setup Node.js environment
@@ -25,6 +36,7 @@ jobs:
     - name: Install dependencies
       run: npm install
     - name: Update dependencies
+      id: dependencies
       run: |
         if [ -d "package-lock.json" ]; then
         rm -rf "package-lock.json"
@@ -34,9 +46,11 @@ jobs:
         fi
         git add .
         if [[ -n $(git status -s) ]]; then
+        echo "status=Changed" >> "$GITHUB_OUTPUT"
         git commit -m "[Automated] Update package-lock.json"
         fi
     - name: Build dist file
+      id: dist
       run: |
         if [ -d "dist" ]; then
         rm -rf "dist"
@@ -44,15 +58,33 @@ jobs:
         npm run build
         git add dist --force
         if [[ -n $(git status -s) ]]; then
+        echo "status=Changed" >> "$GITHUB_OUTPUT"
         git commit -m "[Automated] Upload dist file"
         fi
     - name: Format with Prettier
+      id: format
       run: |
        npm run format:w
        git add .
        if [[ -n $(git status -s) ]]; then
+       echo "status=Changed" >> "$GITHUB_OUTPUT"
        git commit -m "[Automated] Format All of the file"
        fi
     - name: Push to branch
       run: |
-       git push origin --force
+        if [[ -n "${{ steps.dependencies.outputs.status }}" ]] || [[ -n "${{ steps.dist.outputs.status }}" ]] || [[ -n "${{ steps.format.outputs.status }}" ]]; then
+        git push --set-upstream origin patch-${{ steps.time.outputs.time }}
+        fi
+    - name: OpenPR
+      uses: actions/github-script@v6.4.1
+      with:
+        script: |
+          if ("${{ steps.dependencies.outputs.status }}" || "${{ steps.dist.outputs.status }}" || "${{ steps.format.outputs.status }}"){
+            github.rest.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: "[Automated] Update",
+              base: "coolplaylin:patch-${{ steps.time.outputs.time }}",
+              head: "master"
+            })
+          }
