@@ -22,7 +22,7 @@ jobs:
       - name: Checkout in ${{ matrix.os }}
         uses: actions/checkout@master
       - name: Setup Node ${{ matrix.node }} environment
-        uses: actions/setup-node@v2.5.2
+        uses: actions/setup-node@v3.6.0
         with:
           node-version: ${{ matrix.node }}
       - name: Install dependencies
@@ -33,10 +33,10 @@ jobs:
         run: npm test
       - name: Comment
         if: failure()
-        uses: actions/github-script@v2.1.0
+        uses: actions/github-script@v6.4.1
         with:
           script: |
-            github.pulls.createReview({
+            github.rest.pulls.createReview({
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: "@${{ github.event.pull_request.user.login }},\nCheck in ${{ matrix.os }} with node.js ${{ matrix.node }} has been failed\nPlease check your code.",
@@ -49,11 +49,11 @@ jobs:
     steps:
       - name: Approve CoolPlayLin
         if: github.event.pull_request.user.login == 'coolplaylin'
-        uses: actions/github-script@v2.1.0
+        uses: actions/github-script@v6.4.1
         with:
           github-token: ${{ secrets.COOLPLAYLIN_BOT_TOKEN }}
           script: |
-            github.pulls.createReview({
+            github.rest.pulls.createReview({
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: "@${{ github.event.pull_request.user.login }},\nYour pull request has been automatically approved",
@@ -97,7 +97,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            github.pulls.createReview({
+            github.rest.pulls.createReview({
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: "@${{ github.event.pull_request.user.login }},\nAll check has been passed",
