@@ -4,6 +4,20 @@ import * as yaml from "js-yaml";
 import { extname } from "path";
 import { github } from "./envs/env";
 
+export async function preparation(repo: string, owner: string, issue_number:number, options: "removeAllTags"): Promise<void>{
+  switch (options){
+    case "removeAllTags":
+      await github.rest.issues.removeAllLabels({
+        owner: owner,
+        repo: repo,
+        issue_number: issue_number
+      }).then(res => {
+        logger("event", false, "removeAllTags Successful")
+      })
+      break
+  }
+}
+
 export function logger(
   type: "error" | "event" | "warning",
   output_only: boolean,
@@ -89,14 +103,14 @@ export async function output_tags(
 
 export async function verify_template(
   template: template[],
-  inputs: inputs,
+  token: string,
   options: {
     repo: string;
     owner: string;
   }
 ) {
   if (template.length) {
-    template = await output_tags(inputs.token, options.repo, options.owner);
+    template = await output_tags(token, options.repo, options.owner);
   }
 
   return template;

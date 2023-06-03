@@ -4,7 +4,7 @@ import { envs } from "./envs";
 
 export function main(): void {
   // Verify env
-  if (!envs.title || envs.number == -1) {
+  if (!envs.title || envs.number == -1 || inputs.RUNTIME_ERROR) {
     const error = Error(
       "No information about pull requests and issues is currently available"
     );
@@ -13,15 +13,17 @@ export function main(): void {
   // Get base information
   until
     .get_template(inputs.path)
-    .then((template) => {
-      return until.verify_template(template, inputs, {
+    .then((template) => until.verify_template(template, inputs.token, {
         repo: envs.repo,
         owner: envs.owner,
-      });
-    })
-    .then((template) => {
-      var tags = until.tag(template, envs.title, inputs.default_tag);
-      return tags;
+      }))
+    .then((template) => until.tag(template, envs.title, inputs.default_tag))
+    .then(tags => {
+      if (inputs.removeAllTags){
+      until.preparation(envs.repo, envs.owner, envs.number, "removeAllTags")
+      }
+
+      return tags
     })
     .then((tags) => {
       if (inputs.removeAllTags) {
@@ -38,4 +40,4 @@ export function main(): void {
         tags: tags,
       });
     });
-}
+  }
