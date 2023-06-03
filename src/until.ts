@@ -4,17 +4,24 @@ import * as yaml from "js-yaml";
 import { extname } from "path";
 import { github } from "./envs/env";
 
-export async function preparation(repo: string, owner: string, issue_number:number, options: "removeAllTags"): Promise<void>{
-  switch (options){
+export async function preparation(
+  repo: string,
+  owner: string,
+  issue_number: number,
+  options: "removeAllTags"
+): Promise<void> {
+  switch (options) {
     case "removeAllTags":
-      await github.rest.issues.removeAllLabels({
-        owner: owner,
-        repo: repo,
-        issue_number: issue_number
-      }).then(res => {
-        logger("event", false, "removeAllTags Successful")
-      })
-      break
+      await github.rest.issues
+        .removeAllLabels({
+          owner: owner,
+          repo: repo,
+          issue_number: issue_number,
+        })
+        .then((res) => {
+          logger("event", false, "removeAllTags Successful");
+        });
+      break;
   }
 }
 
