@@ -10,7 +10,7 @@ export function main(): void {
     throw error;
   }
   let option = inputs.removeAllTags ? "removeAllTags" : "";
-  until.preparation(envs.repo, envs.owner, envs.number, option).finally(() => {
+  until.setup(envs.repo, envs.owner, envs.number, option).finally(() => {
     tagger(envs.repo, envs.owner, {
       title: envs.title,
       default_tag: inputs.default_tag,
