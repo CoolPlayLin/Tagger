@@ -97,17 +97,16 @@ jobs:
                     pull_number: number,
                     state: "closed"
                 })
-
-                return number
-            })
-            .then(number => {
-                github.rest.pulls.update({
+                .finally(() => {
+                  github.rest.pulls.update({
                     owner: context.repo.owner,
                     repo: context.repo.repo,
                     pull_number: number,
                     state: "open"
                 })
-
-                return number
-            })      
+                .then(() => {
+                  console.log("Run Successful")
+                })
+            })
+            })
             }
