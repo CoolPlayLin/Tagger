@@ -16342,7 +16342,7 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 
 
-function preparation(repo, owner, issue_number, options) {
+function setup(repo, owner, issue_number, options) {
     return __awaiter(this, void 0, void 0, function* () {
         switch (options) {
             case "removeAllTags":
@@ -16488,7 +16488,7 @@ function main() {
         throw error;
     }
     let option = inputs.removeAllTags ? "removeAllTags" : "";
-    preparation(envs.repo, envs.owner, envs.number, option).finally(() => {
+    setup(envs.repo, envs.owner, envs.number, option).finally(() => {
         tagger(envs.repo, envs.owner, {
             title: envs.title,
             default_tag: inputs.default_tag,
