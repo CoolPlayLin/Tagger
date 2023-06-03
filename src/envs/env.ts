@@ -3,7 +3,7 @@ import { Octokit } from "@octokit/rest";
 import * as t from "../types";
 
 export var github: Octokit;
-export var inputs: t.inputs | any;
+export var inputs: t.inputs;
 
 try {
   inputs = {
@@ -12,15 +12,19 @@ try {
     default_tag: core.getInput("default-tag"),
     debug: core.getBooleanInput("debug"),
     removeAllTags: core.getBooleanInput("removeAllTags"),
+    RUNTIME_ERROR: false
   };
 } catch {
-  inputs = undefined;
+  inputs = {
+    token: "",
+    path: "",
+    default_tag: "",
+    debug: false,
+    removeAllTags: false,
+    RUNTIME_ERROR: true
+  }
 }
 
-try {
-  github = new Octokit({
-    auth: inputs.token,
-  });
-} catch {
-  github = new Octokit();
-}
+github = new Octokit({
+  auth: inputs.token,
+})
