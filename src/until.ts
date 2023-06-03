@@ -1,4 +1,4 @@
-import { inputs, template } from "./types";
+import { template } from "./types";
 import * as fs from "fs";
 import * as yaml from "js-yaml";
 import { extname } from "path";
@@ -114,8 +114,10 @@ export async function verify_template(
     owner: string;
   }
 ) {
-  if (template.length) {
-    template = await output_tags(options.repo, options.owner);
+  if (!template.length) {
+    logger("event", false, "A temporary configuration file is being generated")
+    template = await output_tags(options.repo, options.owner)
+    logger("event", false, "A temporary configuration file has been generated")
   }
 
   return template;
