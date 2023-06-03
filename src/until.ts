@@ -8,7 +8,7 @@ export async function preparation(
   repo: string,
   owner: string,
   issue_number: number,
-  options: "removeAllTags"
+  options: "removeAllTags" | string
 ): Promise<void> {
   switch (options) {
     case "removeAllTags":
@@ -82,7 +82,6 @@ export function tag(
 }
 
 export async function output_tags(
-  token: string,
   repo: string,
   owner: string
 ): Promise<template[]> {
@@ -110,14 +109,13 @@ export async function output_tags(
 
 export async function verify_template(
   template: template[],
-  token: string,
   options: {
     repo: string;
     owner: string;
   }
 ) {
   if (template.length) {
-    template = await output_tags(token, options.repo, options.owner);
+    template = await output_tags(options.repo, options.owner);
   }
 
   return template;
@@ -132,38 +130,24 @@ export async function get_template(path: string): Promise<template[]> {
       switch (extname(path).toLowerCase()) {
         case ".json":
           template = JSON.parse(String(fs.readFileSync(path)));
+          logger("event", false, "A configuration file in JSON format has been found")
           break;
         case ".yml":
         case ".yaml":
           template = yaml.load(String(fs.readFileSync(path)));
+          logger("event", false, "A configuration file in YML(YAML) format has been found and read")
           break;
         default:
+          logger("warning", false, "Configuration file not found, we are pulling program to automatically generate temporary configuration file")
           template = [];
           break;
       }
     } catch (error: any) {
       logger("warning", true, error);
-      logger("warning", true, "");
+      logger("warning", true, "An error occurred while reading the configuration file, we are pulling program to automatically generate temporary configuration file");
       template = [];
     }
   }
 
   return template;
-}
-
-export function add_tags(
-  token: string,
-  template: {
-    repo: string;
-    owner: string;
-    number: number;
-    tags: Array<string>;
-  }
-) {
-  github.issues.addLabels({
-    repo: template.repo,
-    owner: template.owner,
-    issue_number: template.number,
-    labels: template.tags,
-  });
 }
