@@ -115,9 +115,9 @@ export async function verify_template(
   }
 ) {
   if (!template.length) {
-    logger("event", false, "A temporary configuration file is being generated")
-    template = await output_tags(options.repo, options.owner)
-    logger("event", false, "A temporary configuration file has been generated")
+    logger("event", false, "A temporary configuration file is being generated");
+    template = await output_tags(options.repo, options.owner);
+    logger("event", false, "A temporary configuration file has been generated");
   }
 
   return template;
@@ -132,21 +132,37 @@ export async function get_template(path: string): Promise<template[]> {
       switch (extname(path).toLowerCase()) {
         case ".json":
           template = JSON.parse(String(fs.readFileSync(path)));
-          logger("event", false, "A configuration file in JSON format has been found")
+          logger(
+            "event",
+            false,
+            "A configuration file in JSON format has been found"
+          );
           break;
         case ".yml":
         case ".yaml":
           template = yaml.load(String(fs.readFileSync(path)));
-          logger("event", false, "A configuration file in YML(YAML) format has been found and read")
+          logger(
+            "event",
+            false,
+            "A configuration file in YML(YAML) format has been found and read"
+          );
           break;
         default:
-          logger("warning", false, "Configuration file not found, we are pulling program to automatically generate temporary configuration file")
+          logger(
+            "warning",
+            false,
+            "Configuration file not found, we are pulling program to automatically generate temporary configuration file"
+          );
           template = [];
           break;
       }
     } catch (error: any) {
       logger("warning", true, error);
-      logger("warning", true, "An error occurred while reading the configuration file, we are pulling program to automatically generate temporary configuration file");
+      logger(
+        "warning",
+        true,
+        "An error occurred while reading the configuration file, we are pulling program to automatically generate temporary configuration file"
+      );
       template = [];
     }
   }
