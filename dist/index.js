@@ -16311,7 +16311,7 @@ try {
         default_tag: lib_core.getInput("default-tag"),
         debug: lib_core.getBooleanInput("debug"),
         removeAllTags: lib_core.getBooleanInput("removeAllTags"),
-        RUNTIME_ERROR: false
+        RUNTIME_ERROR: false,
     };
 }
 catch (_a) {
@@ -16321,7 +16321,7 @@ catch (_a) {
         default_tag: "",
         debug: false,
         removeAllTags: false,
-        RUNTIME_ERROR: true
+        RUNTIME_ERROR: true,
     };
 }
 github = new dist_node.Octokit({
@@ -16349,8 +16349,9 @@ function preparation(repo, owner, issue_number, options) {
                 yield github.rest.issues.removeAllLabels({
                     owner: owner,
                     repo: repo,
-                    issue_number: issue_number
-                }).then(res => {
+                    issue_number: issue_number,
+                })
+                    .then((res) => {
                     logger("event", false, "removeAllTags Successful");
                 });
                 break;
@@ -16402,7 +16403,7 @@ function tag(labelConditions, title, default_tag) {
     }
     return labelsToAdd;
 }
-function output_tags(token, repo, owner) {
+function output_tags(repo, owner) {
     return __awaiter(this, void 0, void 0, function* () {
         var res = [];
         const obj = yield github.issues.listLabelsForRepo({
@@ -16421,10 +16422,12 @@ function output_tags(token, repo, owner) {
         return res;
     });
 }
-function verify_template(template, token, options) {
+function verify_template(template, options) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (template.length) {
-            template = yield output_tags(token, options.repo, options.owner);
+        if (!template.length) {
+            logger("event", false, "A temporary configuration file is being generated");
+            template = yield output_tags(options.repo, options.owner);
+            logger("event", false, "A temporary configuration file has been generated");
         }
         return template;
     });
@@ -16440,31 +16443,26 @@ function get_template(path) {
                 switch ((0,external_path_.extname)(path).toLowerCase()) {
                     case ".json":
                         template = JSON.parse(String(external_fs_.readFileSync(path)));
+                        logger("event", false, "A configuration file in JSON format has been found");
                         break;
                     case ".yml":
                     case ".yaml":
                         template = load(String(external_fs_.readFileSync(path)));
+                        logger("event", false, "A configuration file in YML(YAML) format has been found and read");
                         break;
                     default:
+                        logger("warning", false, "Configuration file not found, we are pulling program to automatically generate temporary configuration file");
                         template = [];
                         break;
                 }
             }
             catch (error) {
                 logger("warning", true, error);
-                logger("warning", true, "");
+                logger("warning", true, "An error occurred while reading the configuration file, we are pulling program to automatically generate temporary configuration file");
                 template = [];
             }
         }
         return template;
-    });
-}
-function add_tags(token, template) {
-    github.issues.addLabels({
-        repo: template.repo,
-        owner: template.owner,
-        issue_number: template.number,
-        labels: template.tags,
     });
 }
 
@@ -16485,37 +16483,42 @@ const envs = {
 
 
 function main() {
-    // Verify env
-    if (!envs.title || envs.number == -1 || inputs.RUNTIME_ERROR) {
+    if (inputs.RUNTIME_ERROR) {
         const error = Error("No information about pull requests and issues is currently available");
         throw error;
     }
-    // Get base information
+    let option = inputs.removeAllTags ? "removeAllTags" : "";
+    preparation(envs.repo, envs.owner, envs.number, option)
+        .finally(() => {
+        tagger(envs.repo, envs.owner, {
+            title: envs.title,
+            default_tag: inputs.default_tag,
+            issue_number: envs.number
+        });
+    });
+}
+function tagger(repo, owner, options) {
     get_template(inputs.path)
-        .then((template) => verify_template(template, inputs.token, {
-        repo: envs.repo,
-        owner: envs.owner,
+        .then((template) => verify_template(template, {
+        repo: repo,
+        owner: owner,
     }))
-        .then((template) => tag(template, envs.title, inputs.default_tag))
-        .then(tags => {
-        if (inputs.removeAllTags) {
-            preparation(envs.repo, envs.owner, envs.number, "removeAllTags");
-        }
-        return tags;
-    })
+        .then((template) => tag(template, options.title, options.default_tag))
         .then((tags) => {
-        if (inputs.removeAllTags) {
-            github.issues.removeAllLabels({
-                repo: envs.repo,
-                owner: envs.owner,
-                issue_number: envs.number,
-            });
-        }
-        add_tags(inputs.token, {
-            owner: envs.owner,
-            repo: envs.repo,
-            number: envs.number,
-            tags: tags,
+        github.issues.addLabels({
+            repo: repo,
+            owner: owner,
+            issue_number: options.issue_number,
+            labels: tags,
+        }).then(res => {
+            logger("event", false, `Tag-adding request has been sent`);
+            if (res.status === 200) {
+                logger("event", false, "Tag-adding request has been succeeded");
+            }
+            else {
+                logger("event", false, `Unknown Status Code: ${res.status}`);
+            }
+            logger("event", false, "Thanks for using");
         });
     });
 }
