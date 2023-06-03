@@ -106,7 +106,7 @@ jobs:
             })
   AutoApprove:
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && github.event.pull_request.user.login == 'github-actions[bot]'
+    if: github.event_name == 'pull_request' && github.event.pull_request.user.login == 'coolplaylinbot'
     steps:
       - name: Approve (Owner)
         uses: actions/github-script@v6.4.1
