@@ -16318,11 +16318,11 @@ catch (_a) {
 }
 try {
     github = new dist_node.Octokit({
-        auth: inputs.token
+        auth: inputs.token,
     });
 }
 catch (_b) {
-    github = new dist_node.Octokit;
+    github = new dist_node.Octokit();
 }
 
 ;// CONCATENATED MODULE: ./src/until.ts
