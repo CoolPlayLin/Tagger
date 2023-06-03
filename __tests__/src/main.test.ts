@@ -13,7 +13,7 @@ test("Template-Reading", async () => {
   ];
 
   logger("event", true, "Output tag testing.....");
-  console.log(await output_tags("", "Tagger", "CoolPlayLin"));
+  console.log(await output_tags("Tagger", "CoolPlayLin"));
   logger("event", true, "Output Template(main.yml)..... (1)");
   console.log(
     await get_template(join(resolve(__dirname, ".."), "template", "main.yml"))
