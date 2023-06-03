@@ -16311,19 +16311,22 @@ try {
         default_tag: lib_core.getInput("default-tag"),
         debug: lib_core.getBooleanInput("debug"),
         removeAllTags: lib_core.getBooleanInput("removeAllTags"),
+        RUNTIME_ERROR: false
     };
 }
 catch (_a) {
-    inputs = undefined;
+    inputs = {
+        token: "",
+        path: "",
+        default_tag: "",
+        debug: false,
+        removeAllTags: false,
+        RUNTIME_ERROR: true
+    };
 }
-try {
-    github = new dist_node.Octokit({
-        auth: inputs.token,
-    });
-}
-catch (_b) {
-    github = new dist_node.Octokit();
-}
+github = new dist_node.Octokit({
+    auth: inputs.token,
+});
 
 ;// CONCATENATED MODULE: ./src/until.ts
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
@@ -16339,6 +16342,21 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 
 
+function preparation(repo, owner, issue_number, options) {
+    return __awaiter(this, void 0, void 0, function* () {
+        switch (options) {
+            case "removeAllTags":
+                yield github.rest.issues.removeAllLabels({
+                    owner: owner,
+                    repo: repo,
+                    issue_number: issue_number
+                }).then(res => {
+                    logger("event", false, "removeAllTags Successful");
+                });
+                break;
+        }
+    });
+}
 function logger(type, output_only, value) {
     value = String(value);
     if (output_only) {
@@ -16403,10 +16421,10 @@ function output_tags(token, repo, owner) {
         return res;
     });
 }
-function verify_template(template, inputs, options) {
+function verify_template(template, token, options) {
     return __awaiter(this, void 0, void 0, function* () {
         if (template.length) {
-            template = yield output_tags(inputs.token, options.repo, options.owner);
+            template = yield output_tags(token, options.repo, options.owner);
         }
         return template;
     });
@@ -16468,20 +16486,21 @@ const envs = {
 
 function main() {
     // Verify env
-    if (!envs.title || envs.number == -1) {
+    if (!envs.title || envs.number == -1 || inputs.RUNTIME_ERROR) {
         const error = Error("No information about pull requests and issues is currently available");
         throw error;
     }
     // Get base information
     get_template(inputs.path)
-        .then((template) => {
-        return verify_template(template, inputs, {
-            repo: envs.repo,
-            owner: envs.owner,
-        });
-    })
-        .then((template) => {
-        var tags = tag(template, envs.title, inputs.default_tag);
+        .then((template) => verify_template(template, inputs.token, {
+        repo: envs.repo,
+        owner: envs.owner,
+    }))
+        .then((template) => tag(template, envs.title, inputs.default_tag))
+        .then(tags => {
+        if (inputs.removeAllTags) {
+            preparation(envs.repo, envs.owner, envs.number, "removeAllTags");
+        }
         return tags;
     })
         .then((tags) => {
