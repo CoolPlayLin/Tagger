@@ -4,7 +4,7 @@ import * as yaml from "js-yaml";
 import { extname } from "path";
 import { github } from "./envs/env";
 
-export async function preparation(
+export async function setup(
   repo: string,
   owner: string,
   issue_number: number,
