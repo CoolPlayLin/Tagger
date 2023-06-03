@@ -9,18 +9,21 @@ export function main(): void {
     );
     throw error;
   }
-  let option = inputs.removeAllTags ? "removeAllTags" : ""
-  until.preparation(envs.repo, envs.owner, envs.number, option)
-  .finally(() => {
+  let option = inputs.removeAllTags ? "removeAllTags" : "";
+  until.preparation(envs.repo, envs.owner, envs.number, option).finally(() => {
     tagger(envs.repo, envs.owner, {
       title: envs.title,
       default_tag: inputs.default_tag,
-      issue_number: envs.number
-    })
-  })
+      issue_number: envs.number,
+    });
+  });
 }
 
-function tagger(repo: string, owner: string, options: {title: string, default_tag: string, issue_number: number}): void {
+function tagger(
+  repo: string,
+  owner: string,
+  options: { title: string; default_tag: string; issue_number: number }
+): void {
   until
     .get_template(inputs.path)
     .then((template) =>
@@ -31,20 +34,26 @@ function tagger(repo: string, owner: string, options: {title: string, default_ta
     )
     .then((template) => until.tag(template, options.title, options.default_tag))
     .then((tags) => {
-      github.issues.addLabels({
-        repo: repo,
-        owner: owner,
-        issue_number: options.issue_number,
-        labels: tags,
-      }).then(res => {
-        until.logger("event", false, `Tag-adding request has been sent`)
-        if (res.status === 200){
-          until.logger("event", false, "Tag-adding request has been succeeded")
-        } else {
-          until.logger("event", false, `Unknown Status Code: ${res.status}`)
-        }
+      github.issues
+        .addLabels({
+          repo: repo,
+          owner: owner,
+          issue_number: options.issue_number,
+          labels: tags,
+        })
+        .then((res) => {
+          until.logger("event", false, `Tag-adding request has been sent`);
+          if (res.status === 200) {
+            until.logger(
+              "event",
+              false,
+              "Tag-adding request has been succeeded"
+            );
+          } else {
+            until.logger("event", false, `Unknown Status Code: ${res.status}`);
+          }
 
-        until.logger("event", false, "Thanks for using")
-      })
+          until.logger("event", false, "Thanks for using");
+        });
     });
 }
