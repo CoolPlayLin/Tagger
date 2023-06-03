@@ -16488,12 +16488,11 @@ function main() {
         throw error;
     }
     let option = inputs.removeAllTags ? "removeAllTags" : "";
-    preparation(envs.repo, envs.owner, envs.number, option)
-        .finally(() => {
+    preparation(envs.repo, envs.owner, envs.number, option).finally(() => {
         tagger(envs.repo, envs.owner, {
             title: envs.title,
             default_tag: inputs.default_tag,
-            issue_number: envs.number
+            issue_number: envs.number,
         });
     });
 }
@@ -16510,7 +16509,8 @@ function tagger(repo, owner, options) {
             owner: owner,
             issue_number: options.issue_number,
             labels: tags,
-        }).then(res => {
+        })
+            .then((res) => {
             logger("event", false, `Tag-adding request has been sent`);
             if (res.status === 200) {
                 logger("event", false, "Tag-adding request has been succeeded");
