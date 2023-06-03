@@ -80,6 +80,7 @@ jobs:
       - name: OpenPR
         uses: actions/github-script@v6.4.1
         with:
+          github-token: ${{ secrets.COOLPLAYLIN_BOT_TOKEN }}
           script: |
             if ("${{ steps.dependencies.outputs.status }}" || "${{ steps.dist.outputs.status }}" || "${{ steps.format.outputs.status }}"){
               github.rest.pulls.create({
@@ -88,26 +89,9 @@ jobs:
                 title: "[Automated] Update",
                 base: "master",
                 head: "coolplaylin:patch-${{ steps.time.outputs.time }}"
-            })
-            .then(res => res.data.number)
-            .then(number => {
-                github.rest.pulls.update({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    pull_number: number,
-                    state: "closed"
-                })
-
-                return number
-            })
-            .then(number => {
-                github.rest.pulls.update({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    pull_number: number,
-                    state: "open"
-                })
-
-                return number
-            })      
+              })
+              .then(res => res.data.html_url)
+              .then(url => {
+                console.log(`The PR has been opened in ${url}`)
+              })
             }
