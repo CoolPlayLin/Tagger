@@ -4,7 +4,7 @@ export interface inputs {
   default_tag: string;
   debug: boolean;
   removeAllTags: boolean;
-  RUNTIME_ERROR: boolean
+  RUNTIME_ERROR: boolean;
 }
 
 export interface template {

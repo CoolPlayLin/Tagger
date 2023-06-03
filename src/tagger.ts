@@ -13,17 +13,19 @@ export function main(): void {
   // Get base information
   until
     .get_template(inputs.path)
-    .then((template) => until.verify_template(template, inputs.token, {
+    .then((template) =>
+      until.verify_template(template, inputs.token, {
         repo: envs.repo,
         owner: envs.owner,
-      }))
+      })
+    )
     .then((template) => until.tag(template, envs.title, inputs.default_tag))
-    .then(tags => {
-      if (inputs.removeAllTags){
-      until.preparation(envs.repo, envs.owner, envs.number, "removeAllTags")
+    .then((tags) => {
+      if (inputs.removeAllTags) {
+        until.preparation(envs.repo, envs.owner, envs.number, "removeAllTags");
       }
 
-      return tags
+      return tags;
     })
     .then((tags) => {
       if (inputs.removeAllTags) {
@@ -40,4 +42,4 @@ export function main(): void {
         tags: tags,
       });
     });
-  }
+}

@@ -12,7 +12,7 @@ try {
     default_tag: core.getInput("default-tag"),
     debug: core.getBooleanInput("debug"),
     removeAllTags: core.getBooleanInput("removeAllTags"),
-    RUNTIME_ERROR: false
+    RUNTIME_ERROR: false,
   };
 } catch {
   inputs = {
@@ -21,10 +21,10 @@ try {
     default_tag: "",
     debug: false,
     removeAllTags: false,
-    RUNTIME_ERROR: true
-  }
+    RUNTIME_ERROR: true,
+  };
 }
 
 github = new Octokit({
   auth: inputs.token,
-})
+});
