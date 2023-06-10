@@ -112,8 +112,8 @@ export async function output_tags(
 ): Promise<template[]> {
   var res: template[] = [];
   const obj = await github.issues.listLabelsForRepo({
-    owner: owner,
-    repo: repo,
+    owner: owner as never,
+    repo: repo as never,
   });
 
   const all_tags: Array<string> = obj.data.map(function (obj: {
