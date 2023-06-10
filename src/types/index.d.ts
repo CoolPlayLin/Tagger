@@ -1,4 +1,4 @@
-export interface inputs {
+export interface input {
   token: string;
   path: string;
   default_tag: string;

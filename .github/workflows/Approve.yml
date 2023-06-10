@@ -1,0 +1,91 @@
+name: Approve
+
+on:
+  pull_request:
+    types: [opened]
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  OwnerApprove:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.user.login != 'coolplaylinbot'
+    steps:
+      - name: Approve CoolPlayLin
+        if: github.event.pull_request.user.login == 'coolplaylin'
+        uses: actions/github-script@v6.4.1
+        with:
+          github-token: ${{ secrets.COOLPLAYLIN_BOT_TOKEN }}
+          script: |
+            github.rest.pulls.createReview({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: "@${{ github.event.pull_request.user.login }},\nYour pull request has been automatically approved",
+                pull_number: context.payload.pull_request.number,
+                event: "APPROVE"
+            })
+      - name: Approve Dependabot
+        if: github.event.pull_request.user.login == 'dependabot[bot]'
+        uses: actions/github-script@v6.4.1
+        with:
+          github-token: ${{ secrets.COOLPLAYLIN_BOT_TOKEN }}
+          script: |
+            github.pulls.createReview({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: "@${{ github.event.pull_request.user.login }},\nYour pull request has been automatically approved by us",
+                pull_number: context.payload.pull_request.number,
+                event: "APPROVE"
+            })
+      - name: Approve Renovate
+        if: github.event.pull_request.user.login == 'renovate[bot]'
+        uses: actions/github-script@v6.4.1
+        with:
+          github-token: ${{ secrets.COOLPLAYLIN_BOT_TOKEN }}
+          script: |
+            github.pulls.createReview({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: "@${{ github.event.pull_request.user.login }},\nYour pull request has been automatically approved by us",
+                pull_number: context.payload.pull_request.number,
+                event: "APPROVE"
+            })
+
+  AutoApprove:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.user.login == 'coolplaylinbot'
+    steps:
+      - name: Approve (Owner)
+        uses: actions/github-script@v6.4.1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.pulls.createReview({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.payload.pull_request.number,
+                event: "APPROVE"
+            })
+      - name: Approve (Owner)
+        uses: actions/github-script@v6.4.1
+        with:
+          github-token: ${{ secrets.COOLPLAYLIN_TOKEN }}
+          script: |
+            github.rest.pulls.createReview({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.payload.pull_request.number,
+                event: "APPROVE"
+            })
+      - name: Auto Merge
+        uses: actions/github-script@v6.4.1
+        with:
+          github-token: ${{ secrets.COOLPLAYLIN_BOT_TOKEN }}
+          script: |
+            github.rest.pulls.merge({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.payload.pull_request.number
+            })

@@ -2,7 +2,32 @@ import { template } from "./types";
 import * as fs from "fs";
 import * as yaml from "js-yaml";
 import { extname } from "path";
-import { github } from "./envs/env";
+import { github } from "./envs";
+import { getBooleanInput, getIDToken, getInput } from "@actions/core";
+
+export function get_input(value: string, output: "string"|"boolean"|"RUNTIME"): string | boolean | undefined {
+  switch (output){
+    case "string":
+      try {
+        return getInput(value)
+      } catch (error) {
+        return undefined
+      }
+    case "boolean":
+      try {
+        return getBooleanInput(value)
+      } catch (error) {
+        return undefined
+      }
+    case "RUNTIME":
+      try {
+        getBooleanInput("debug")
+        return true
+      } catch (error) {
+        return false
+      }
+  }
+}
 
 export async function setup(
   repo: string,
@@ -87,8 +112,8 @@ export async function output_tags(
 ): Promise<template[]> {
   var res: template[] = [];
   const obj = await github.issues.listLabelsForRepo({
-    owner: owner,
-    repo: repo,
+    owner: owner as never,
+    repo: repo as never,
   });
 
   const all_tags: Array<string> = obj.data.map(function (obj: {
