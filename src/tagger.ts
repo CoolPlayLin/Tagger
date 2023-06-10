@@ -1,6 +1,7 @@
 import * as until from "./until";
-import { github, inputs } from "./envs/env";
-import { envs } from "./envs";
+import { github  } from "./envs";
+import { envs, inputs } from "./envs";
+import { input } from "./types";
 
 export function main(): void {
   if (inputs.RUNTIME_ERROR) {
@@ -11,7 +12,7 @@ export function main(): void {
   }
   let option = inputs.removeAllTags ? "removeAllTags" : "";
   until.setup(envs.repo, envs.owner, envs.number, option).finally(() => {
-    tagger(envs.repo, envs.owner, {
+    tagger(envs.repo, envs.owner, inputs,{
       title: envs.title,
       default_tag: inputs.default_tag,
       issue_number: envs.number,
@@ -22,6 +23,7 @@ export function main(): void {
 function tagger(
   repo: string,
   owner: string,
+  inputs: input,
   options: { title: string; default_tag: string; issue_number: number }
 ): void {
   until
