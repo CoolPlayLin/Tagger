@@ -16295,39 +16295,36 @@ var jsYaml = {
 
 // EXTERNAL MODULE: external "path"
 var external_path_ = __nccwpck_require__(1017);
-// EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
-var lib_core = __nccwpck_require__(2186);
+// EXTERNAL MODULE: ./node_modules/@actions/github/lib/github.js
+var github = __nccwpck_require__(5438);
 // EXTERNAL MODULE: ./node_modules/@octokit/rest/dist-node/index.js
 var dist_node = __nccwpck_require__(5375);
-;// CONCATENATED MODULE: ./src/envs/env.ts
+;// CONCATENATED MODULE: ./src/envs/index.ts
+var _a, _b, _c;
 
 
-var github;
-var inputs;
-try {
-    inputs = {
-        token: lib_core.getInput("repo-token"),
-        path: lib_core.getInput("path"),
-        default_tag: lib_core.getInput("default-tag"),
-        debug: lib_core.getBooleanInput("debug"),
-        removeAllTags: lib_core.getBooleanInput("removeAllTags"),
-        RUNTIME_ERROR: false,
-    };
-}
-catch (_a) {
-    inputs = {
-        token: "",
-        path: "",
-        default_tag: "",
-        debug: false,
-        removeAllTags: false,
-        RUNTIME_ERROR: true,
-    };
-}
-github = new dist_node.Octokit({
+
+const inputs = {
+    token: get_input("repo-token", "string") || "",
+    path: get_input("path", "string") || "",
+    default_tag: get_input("default-tag", "string") || "",
+    debug: get_input("debug", "boolean") || false,
+    removeAllTags: get_input("removeAllTags", "boolean") || false,
+    RUNTIME_ERROR: get_input("RUNTIME", "RUNTIME"),
+};
+const envs_github = new dist_node.Octokit({
     auth: inputs.token,
 });
+;
+const envs = {
+    owner: github.context.repo.owner,
+    repo: github.context.repo.repo,
+    number: ((_a = github.context.payload.issue) === null || _a === void 0 ? void 0 : _a.number) || ((_b = github.context.payload.pull_request) === null || _b === void 0 ? void 0 : _b.number) || -1,
+    title: (_c = github.context.payload.issue) === null || _c === void 0 ? void 0 : _c.title,
+};
 
+// EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
+var lib_core = __nccwpck_require__(2186);
 ;// CONCATENATED MODULE: ./src/until.ts
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -16342,11 +16339,38 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 
 
+
+function get_input(value, output) {
+    switch (output) {
+        case "string":
+            try {
+                return (0,lib_core.getInput)(value);
+            }
+            catch (error) {
+                return undefined;
+            }
+        case "boolean":
+            try {
+                return (0,lib_core.getBooleanInput)(value);
+            }
+            catch (error) {
+                return undefined;
+            }
+        case "RUNTIME":
+            try {
+                (0,lib_core.getBooleanInput)("debug");
+                return true;
+            }
+            catch (error) {
+                return false;
+            }
+    }
+}
 function setup(repo, owner, issue_number, options) {
     return __awaiter(this, void 0, void 0, function* () {
         switch (options) {
             case "removeAllTags":
-                yield github.rest.issues.removeAllLabels({
+                yield envs_github.rest.issues.removeAllLabels({
                     owner: owner,
                     repo: repo,
                     issue_number: issue_number,
@@ -16406,7 +16430,7 @@ function tag(labelConditions, title, default_tag) {
 function output_tags(repo, owner) {
     return __awaiter(this, void 0, void 0, function* () {
         var res = [];
-        const obj = yield github.issues.listLabelsForRepo({
+        const obj = yield envs_github.issues.listLabelsForRepo({
             owner: owner,
             repo: repo,
         });
@@ -16466,18 +16490,6 @@ function get_template(path) {
     });
 }
 
-// EXTERNAL MODULE: ./node_modules/@actions/github/lib/github.js
-var lib_github = __nccwpck_require__(5438);
-;// CONCATENATED MODULE: ./src/envs/index.ts
-var _a, _b, _c;
-
-const envs = {
-    owner: lib_github.context.repo.owner,
-    repo: lib_github.context.repo.repo,
-    number: ((_a = lib_github.context.payload.issue) === null || _a === void 0 ? void 0 : _a.number) || ((_b = lib_github.context.payload.pull_request) === null || _b === void 0 ? void 0 : _b.number) || -1,
-    title: (_c = lib_github.context.payload.issue) === null || _c === void 0 ? void 0 : _c.title,
-};
-
 ;// CONCATENATED MODULE: ./src/tagger.ts
 
 
@@ -16489,14 +16501,14 @@ function main() {
     }
     let option = inputs.removeAllTags ? "removeAllTags" : "";
     setup(envs.repo, envs.owner, envs.number, option).finally(() => {
-        tagger(envs.repo, envs.owner, {
+        tagger(envs.repo, envs.owner, inputs, {
             title: envs.title,
             default_tag: inputs.default_tag,
             issue_number: envs.number,
         });
     });
 }
-function tagger(repo, owner, options) {
+function tagger(repo, owner, inputs, options) {
     get_template(inputs.path)
         .then((template) => verify_template(template, {
         repo: repo,
@@ -16504,7 +16516,7 @@ function tagger(repo, owner, options) {
     }))
         .then((template) => tag(template, options.title, options.default_tag))
         .then((tags) => {
-        github.issues.addLabels({
+        envs_github.issues.addLabels({
             repo: repo,
             owner: owner,
             issue_number: options.issue_number,

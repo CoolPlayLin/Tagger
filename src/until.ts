@@ -5,26 +5,29 @@ import { extname } from "path";
 import { github } from "./envs";
 import { getBooleanInput, getIDToken, getInput } from "@actions/core";
 
-export function get_input(value: string, output: "string"|"boolean"|"RUNTIME"): string | boolean | undefined {
-  switch (output){
+export function get_input(
+  value: string,
+  output: "string" | "boolean" | "RUNTIME"
+): string | boolean | undefined {
+  switch (output) {
     case "string":
       try {
-        return getInput(value)
+        return getInput(value);
       } catch (error) {
-        return undefined
+        return undefined;
       }
     case "boolean":
       try {
-        return getBooleanInput(value)
+        return getBooleanInput(value);
       } catch (error) {
-        return undefined
+        return undefined;
       }
     case "RUNTIME":
       try {
-        getBooleanInput("debug")
-        return true
+        getBooleanInput("debug");
+        return true;
       } catch (error) {
-        return false
+        return false;
       }
   }
 }
