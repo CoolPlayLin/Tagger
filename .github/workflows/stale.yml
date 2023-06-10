@@ -1,6 +1,6 @@
-name: 'Close stale issues and PRs'
+name: "Close stale issues and PRs"
 on:
-  schedule: [{cron: '0 0 * * *'}]
+  schedule: [{ cron: "0 0 * * *" }]
   workflow_dispatch:
 
 jobs:
@@ -13,8 +13,8 @@ jobs:
     steps:
       - uses: actions/stale@v8
         with:
-          stale-issue-message: 'This issue is stale because it has been open 30 days with no activity. Remove stale label or comment or this will be closed in 5 days.'
-          close-issue-message: 'This issue was closed because it has been stalled for 5 days with no activity.'
+          stale-issue-message: "This issue is stale because it has been open 30 days with no activity. Remove stale label or comment or this will be closed in 5 days."
+          close-issue-message: "This issue was closed because it has been stalled for 5 days with no activity."
           days-before-stale: 30
-          exempt-all-issue-milestones: 'NeverExpires'
+          exempt-all-issue-milestones: "NeverExpires"
           days-before-close: 5

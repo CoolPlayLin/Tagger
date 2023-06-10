@@ -3,7 +3,7 @@ name: Formater
 on:
   push:
     branches: [master]
-  schedule: [{cron: 0 0 * * *}]
+  schedule: [{ cron: 0 0 * * * }]
 
 permissions: write-all
 
