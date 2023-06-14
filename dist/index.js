@@ -7497,7 +7497,7 @@ var Endpoints = {
 var endpoints_default = Endpoints;
 
 // pkg/dist-src/version.js
-var VERSION = "7.2.1";
+var VERSION = "7.2.2";
 
 // pkg/dist-src/endpoints-to-methods.js
 function endpointsToMethods(octokit, endpointsMap) {
@@ -7709,7 +7709,7 @@ var import_endpoint = __nccwpck_require__(6065);
 var import_universal_user_agent = __nccwpck_require__(5030);
 
 // pkg/dist-src/version.js
-var VERSION = "6.2.5";
+var VERSION = "6.2.6";
 
 // pkg/dist-src/fetch-wrapper.js
 var import_is_plain_object = __nccwpck_require__(3287);
