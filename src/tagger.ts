@@ -3,6 +3,7 @@ import { github } from "./envs";
 import { envs, inputs } from "./envs";
 import { input } from "./types";
 
+
 export function main(): void {
   if (inputs.RUNTIME_ERROR) {
     const error = Error(
