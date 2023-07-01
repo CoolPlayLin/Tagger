@@ -1,5 +1,7 @@
 name: Block PR
-on: pull_request
+on:
+  pull_request:
+    types: [opened, edited, reopened, labeled, unlabeled]
 
 jobs:
   block:
@@ -9,9 +11,9 @@ jobs:
         uses: actions/github-script@v6.4.1
         with:
           script: |
-           if (context.payload.pull_request.title.indexOf('Block') != -1 || context.payload.pull_request.title.indexOf('block') != -1){
-             const error = Error("Blocking keyword was included. We've prevented this PR.")
-             throw error
-           } else {
-             console.log("Blocking keyword wasn't included.")
-           }
+            if (context.payload.pull_request.title.indexOf('Block') != -1 || context.payload.pull_request.title.indexOf('block') != -1){
+              const error = Error("Blocking keyword was included. We've prevented this PR.")
+              throw error
+            } else {
+              console.log("Blocking keyword wasn't included.")
+            }
