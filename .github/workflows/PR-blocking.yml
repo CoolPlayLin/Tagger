@@ -1,7 +1,7 @@
 name: Block PR
 on:
   pull_request:
-    types: [opened, edited, reopened, labeled, unlabeled]
+    types: [opened, edited, reopened, labeled, unlabeled, synchronize]
 
 jobs:
   block:
