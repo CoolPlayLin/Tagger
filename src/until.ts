@@ -3,7 +3,7 @@ import * as fs from "fs";
 import * as yaml from "js-yaml";
 import { extname } from "path";
 import { github } from "./envs";
-import { getBooleanInput, getIDToken, getInput } from "@actions/core";
+import { getBooleanInput, getInput } from "@actions/core";
 
 export function get_input(
   value: string,
