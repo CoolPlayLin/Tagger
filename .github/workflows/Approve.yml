@@ -32,7 +32,7 @@ jobs:
         with:
           github-token: ${{ secrets.COOLPLAYLIN_BOT_TOKEN }}
           script: |
-            github.pulls.createReview({
+            github.rest.pulls.createReview({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 body: "@${{ github.event.pull_request.user.login }},\nYour pull request has been automatically approved by us",
@@ -45,7 +45,7 @@ jobs:
         with:
           github-token: ${{ secrets.COOLPLAYLIN_BOT_TOKEN }}
           script: |
-            github.pulls.createReview({
+            github.rest.pulls.createReview({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 body: "@${{ github.event.pull_request.user.login }},\nYour pull request has been automatically approved by us",
