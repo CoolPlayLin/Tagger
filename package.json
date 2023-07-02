@@ -35,6 +35,6 @@
     "@types/node": "^20.2.6",
     "@vercel/ncc": "^0.36.1",
     "prettier": "^2.8.8",
-    "typescript": "^5.2.0-dev.20230701"
+    "typescript": "^5.2.0-dev.20230101"
   }
 }
