@@ -6,7 +6,7 @@ import { input } from "./types";
 export function main(): void {
   if (inputs.RUNTIME_ERROR) {
     const error = Error(
-      "No information about pull requests and issues is currently available"
+      "No information about pull requests and issues is currently available",
     );
     throw error;
   }
@@ -24,7 +24,7 @@ function tagger(
   repo: string,
   owner: string,
   inputs: input,
-  options: { title: string; default_tag: string; issue_number: number }
+  options: { title: string; default_tag: string; issue_number: number },
 ): void {
   until
     .get_template(inputs.path)
@@ -32,7 +32,7 @@ function tagger(
       until.verify_template(template, {
         repo: repo,
         owner: owner,
-      })
+      }),
     )
     .then((template) => until.tag(template, options.title, options.default_tag))
     .then((tags) => {
@@ -49,7 +49,7 @@ function tagger(
             until.logger(
               "event",
               false,
-              "Tag-adding request has been succeeded"
+              "Tag-adding request has been succeeded",
             );
           } else {
             until.logger("event", false, `Unknown Status Code: ${res.status}`);
