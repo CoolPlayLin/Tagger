@@ -7,7 +7,7 @@ import { getBooleanInput, getInput } from "@actions/core";
 
 export function get_input(
   value: string,
-  output: "string" | "boolean" | "RUNTIME"
+  output: "string" | "boolean" | "RUNTIME",
 ): string | boolean | undefined {
   switch (output) {
     case "string":
@@ -36,7 +36,7 @@ export async function setup(
   repo: string,
   owner: string,
   issue_number: number,
-  options: "removeAllTags" | string
+  options: "removeAllTags" | string,
 ): Promise<void> {
   switch (options) {
     case "removeAllTags":
@@ -56,7 +56,7 @@ export async function setup(
 export function logger(
   type: "error" | "event" | "warning",
   output_only: boolean,
-  value: any
+  value: any,
 ): boolean {
   value = String(value);
   if (output_only) {
@@ -89,7 +89,7 @@ export function logger(
 export function tag(
   labelConditions: template[],
   title: string,
-  default_tag: string
+  default_tag: string,
 ): Array<string> {
   let labelsToAdd: Array<string> = [];
   // Add tags based on conditions
@@ -111,7 +111,7 @@ export function tag(
 
 export async function output_tags(
   repo: string,
-  owner: string
+  owner: string,
 ): Promise<template[]> {
   var res: template[] = [];
   const obj = await github.issues.listLabelsForRepo({
@@ -140,7 +140,7 @@ export async function verify_template(
   options: {
     repo: string;
     owner: string;
-  }
+  },
 ) {
   if (!template.length) {
     logger("event", false, "A temporary configuration file is being generated");
@@ -163,7 +163,7 @@ export async function get_template(path: string): Promise<template[]> {
           logger(
             "event",
             false,
-            "A configuration file in JSON format has been found"
+            "A configuration file in JSON format has been found",
           );
           break;
         case ".yml":
@@ -172,14 +172,14 @@ export async function get_template(path: string): Promise<template[]> {
           logger(
             "event",
             false,
-            "A configuration file in YML(YAML) format has been found and read"
+            "A configuration file in YML(YAML) format has been found and read",
           );
           break;
         default:
           logger(
             "warning",
             false,
-            "Configuration file not found, we are pulling program to automatically generate temporary configuration file"
+            "Configuration file not found, we are pulling program to automatically generate temporary configuration file",
           );
           template = [];
           break;
@@ -189,7 +189,7 @@ export async function get_template(path: string): Promise<template[]> {
       logger(
         "warning",
         true,
-        "An error occurred while reading the configuration file, we are pulling program to automatically generate temporary configuration file"
+        "An error occurred while reading the configuration file, we are pulling program to automatically generate temporary configuration file",
       );
       template = [];
     }
